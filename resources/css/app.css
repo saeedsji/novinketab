@@ -1,0 +1,249 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* General Styles */
+select {
+    @apply pr-10; /* rtl support for padding */
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Hide number input arrows */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+body {
+    @apply font-sans;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Base Layer (Fonts)
+|--------------------------------------------------------------------------
+*/
+@layer base {
+    @font-face {
+        font-family: 'IRANSans';
+        font-style: normal;
+        font-weight: normal;
+        src: url('../fonts/iransans/woff2/IRANSansWeb.woff2') format('woff2'),
+        url('../fonts/iransans/woff/IRANSansWeb.woff') format('woff'),
+        url('../fonts/iransans/ttf/IRANSansWeb.ttf') format('truetype');
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: 'IRANSans';
+        font-style: normal;
+        font-weight: bold;
+        src: url('../fonts/iransans/woff2/IRANSansWeb_Bold.woff2') format('woff2'),
+        url('../fonts/iransans/woff/IRANSansWeb_Bold.woff') format('woff'),
+        url('../fonts/iransans/ttf/IRANSansWeb_Bold.ttf') format('truetype');
+        font-display: swap;
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Components Layer
+|--------------------------------------------------------------------------
+| Reusable component classes built with @apply.
+*/
+@layer components {
+    /* Buttons */
+    .btn {
+        @apply inline-flex items-center justify-center gap-x-2 rounded-md border text-sm font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
+    }
+    .btn-primary {
+        @apply btn border-transparent bg-primary-600 px-4 py-2 text-white hover:bg-primary-700 focus:ring-primary-500;
+    }
+    .btn-secondary {
+        @apply btn border-transparent bg-secondary-600 px-4 py-2 text-white hover:bg-secondary-700 focus:ring-secondary-500;
+    }
+    .btn-outline {
+        @apply btn bg-surface-main text-text-main border-border-color hover:bg-surface-secondary focus:ring-primary-500 px-4 py-2;
+    }
+    .btn-soft-danger {
+        @apply btn bg-danger-100 text-danger-700 border-transparent hover:bg-danger-200 px-3 py-2 focus:ring-danger-500;
+    }
+    .btn-variable {
+        @apply text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full hover:bg-gray-300 transition-colors;
+    }
+
+    /* Card Action Buttons */
+    .btn-card-action {
+        @apply flex flex-1 items-center justify-center gap-x-2 px-4 py-3 text-sm font-medium text-text-muted hover:bg-surface-secondary transition-colors duration-200 ease-in-out;
+    }
+    .btn-card-action-danger {
+        @apply btn-card-action text-danger-600 hover:bg-danger-50;
+    }
+
+    /* Links as Buttons */
+    .btn-link {
+        @apply text-primary-600 hover:text-primary-800 transition-colors;
+    }
+    .btn-link-secondary {
+        @apply text-text-muted hover:text-text-main transition-colors;
+    }
+    .btn-link-danger {
+        @apply text-danger-600 hover:text-danger-800 transition-colors;
+    }
+    .btn-link-success {
+        @apply text-success-600 hover:text-success-800 transition-colors;
+    }
+    .btn-link-info {
+        @apply text-info-600 hover:text-info-800 transition-colors;
+    }
+
+    /* Form Inputs & Labels */
+    .form-input {
+        @apply block w-full rounded-md border-border-color shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
+    }
+    .form-label {
+        @apply block text-sm font-medium text-text-muted mb-1;
+    }
+    .form-checkbox {
+        @apply h-4 w-4 rounded border-border-color text-primary-600 focus:ring-primary-500;
+    }
+    .form-select {
+        @apply pr-8
+    }
+    .form-error {
+        @apply text-danger-500 text-xs mt-1;
+    }
+
+    /* Alerts */
+    .alert {
+        @apply border p-3 rounded-lg flex items-center justify-between;
+    }
+    .alert-success {
+        @apply alert bg-success-50 border-success-200 text-success-800;
+    }
+
+    /* Cards & Containers */
+    .card {
+        @apply bg-surface-main rounded-lg shadow-sm ring-1 ring-black ring-opacity-5;
+    }
+    .card-footer {
+        @apply mt-4 pt-4 border-t border-border-color text-sm text-text-muted;
+    }
+
+    /* Tables */
+    .table-container {
+        @apply overflow-x-auto rounded-lg shadow ring-1 ring-black ring-opacity-5;
+    }
+    .table-main {
+        @apply min-w-full divide-y divide-border-color;
+    }
+    .table-header {
+        @apply bg-surface-secondary;
+    }
+    .table-header-cell {
+        @apply px-6 py-3.5 text-right text-sm font-semibold text-text-main;
+    }
+    .table-body {
+        @apply divide-y divide-border-color bg-surface-main;
+    }
+    .table-row {
+        @apply hover:bg-surface-secondary;
+    }
+    .table-cell {
+        @apply whitespace-nowrap px-6 py-4 text-sm;
+    }
+    .table-cell-muted {
+        @apply table-cell text-text-muted;
+    }
+
+    /* Badges */
+    .badge {
+        @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+    }
+    .badge-success {
+        @apply badge bg-success-100 text-success-800;
+    }
+    .badge-danger {
+        @apply badge bg-danger-100 text-danger-800;
+    }
+    .badge-ring {
+        @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset;
+    }
+    .badge-ring-info {
+        @apply badge-ring bg-info-50 text-info-700 ring-info-600/20;
+    }
+    .badge-ring-success {
+        @apply badge-ring bg-success-50 text-success-700 ring-success-600/20;
+    }
+    .badge-ring-danger {
+        @apply badge-ring bg-danger-50 text-danger-700 ring-danger-600/20;
+    }
+
+    /* Feature & Card Icon Wrappers */
+    .icon-feature-wrapper {
+        @apply flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full;
+    }
+    .icon-feature-info {
+        @apply icon-feature-wrapper bg-info-100 text-info-600;
+    }
+    .icon-feature-warning {
+        @apply icon-feature-wrapper bg-warning-100 text-warning-600;
+    }
+    .icon-feature-danger {
+        @apply icon-feature-wrapper bg-danger-100 text-danger-600;
+    }
+    .icon-card-wrapper {
+        @apply flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-lg;
+    }
+    .icon-card-primary {
+        @apply icon-card-wrapper bg-primary-100 text-primary-600;
+    }
+    .icon-card-info {
+        @apply icon-card-wrapper bg-info-100 text-info-600;
+    }
+    .icon-card-success {
+        @apply icon-card-wrapper bg-success-100 text-success-600;
+    }
+    .icon-card-warning {
+        @apply icon-card-wrapper bg-warning-100 text-warning-600;
+    }
+
+    /* Section Title */
+    .section-title {
+        @apply text-xl font-semibold text-text-main border-r-4 pr-4 mb-6;
+    }
+    .section-title-primary {
+        @apply section-title border-primary-500;
+    }
+    .section-title-info {
+        @apply section-title border-info-500;
+    }
+    .section-title-success {
+        @apply section-title border-success-500;
+    }
+    .section-title-warning {
+        @apply section-title border-warning-500;
+    }
+    /* Add these to your app.css */
+    .btn-soft-info {
+        @apply btn bg-info-100 text-info-700 border-transparent hover:bg-info-200 px-3 py-2 focus:ring-info-500;
+    }
+    .btn-soft-success {
+        @apply btn bg-success-100 text-success-700 border-transparent hover:bg-success-200 px-3 py-2 focus:ring-success-500;
+    }
+    .btn-soft-secondary {
+        @apply btn bg-secondary-100 text-secondary-700 border-transparent hover:bg-secondary-200 px-3 py-2 focus:ring-secondary-500;
+    }
+}
