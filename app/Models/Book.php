@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Morilog\Jalali\Jalalian;
 
 class Book extends Model
 {
@@ -24,10 +25,8 @@ class Book extends Model
         'title',
         'category_id',
         'status',
-        'estimated_cost',
         'print_price',
         'suggested_price',
-        'estimated_pages',
         'track_count',
         'print_pages',
         'breakeven_sales_count',
@@ -142,5 +141,20 @@ class Book extends Model
     public function latestPrice(): HasOne
     {
         return $this->hasOne(BookPrice::class)->ofMany('effective_date', 'max');
+    }
+
+    public function created_at()
+    {
+        return Jalalian::forge($this->created_at)->format('Y/m/d (H:i:s)');
+    }
+
+    public function updated_at()
+    {
+        return Jalalian::forge($this->updated_at)->format('Y/m/d (H:i:s)');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 }

@@ -20,4 +20,17 @@ enum SalesPlatformEnum: int
             self::NOVIN_KETAB => 'نوین کتاب گویا',
         };
     }
+
+    public static function fromPersian(string $platformName): ?self
+    {
+        return match (trim($platformName)) {
+            'فیدیبو' => self::FIDIBO,
+            'طاقچه' => self::TAGHCHEH,
+            'کتابراه' => self::KETABRAH,
+            'نوار' => self::NAVAR,
+            'نوین کتاب' => self::NOVIN_KETAB, // Adjusted for CSV
+            'نوین کتاب گویا' => self::NOVIN_KETAB,
+            default => null,
+        };
+    }
 }

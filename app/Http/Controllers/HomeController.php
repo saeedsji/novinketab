@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\BooksImport;
 use App\Lib\Journey\ConditionEvaluationService;
 use App\Models\Contact;
 use App\Models\JourneyStep;
@@ -11,6 +12,8 @@ class HomeController extends Controller
 
     public function index()
     {
+        $book = new BooksImport();
+        $book->startRow();
         return view('pages.index');
     }
 

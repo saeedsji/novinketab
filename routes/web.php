@@ -3,12 +3,16 @@
 use App\Http\Controllers\HomeController;
 use App\Livewire\Admin\Access\PermissionManager;
 use App\Livewire\Admin\Access\RoleManager;
+use App\Livewire\Admin\Analytics\AnalyticsIndex;
 use App\Livewire\Admin\Author\AuthorManager;
-use App\Livewire\Admin\Book\BookManager;
+use App\Livewire\Admin\Book\BookForm;
+use App\Livewire\Admin\Book\BookList;
 use App\Livewire\Admin\Category\CategoryManager;
 use App\Livewire\Admin\Composer\ComposerManager;
 use App\Livewire\Admin\Dashboard\DashboardIndex;
 use App\Livewire\Admin\Narrator\NarratorManager;
+use App\Livewire\Admin\Payment\PaymentImporter;
+use App\Livewire\Admin\Payment\PaymentManager;
 use App\Livewire\Admin\Publisher\PublisherManager;
 use App\Livewire\Admin\Translator\TranslatorManager;
 use App\Livewire\Admin\User\SessionManager;
@@ -31,11 +35,11 @@ Route::prefix('admin')->group(function () {
 
     Route::get('dashboard', DashboardIndex::class)->name('dashboard.index');
 
-
+    Route::get('user', UserManager::class)->name('user.index');
+    Route::get('session', SessionManager::class)->name('session.index');
 
     Route::middleware('permission:مدیریت کاربران')->group(function () {
-        Route::get('user', UserManager::class)->name('user.index');
-        Route::get('session', SessionManager::class)->name('session.index');
+
     });
 
     Route::middleware('role:ادمین اصلی')->group(function () {
@@ -64,11 +68,24 @@ Route::prefix('admin')->group(function () {
     Route::middleware('permission:مدیریت ناشران')->group(function () {
         Route::get('publisher', PublisherManager::class)->name('publisher.index');
     });
+
     Route::middleware('permission:مدیریت کتاب‌ها')->group(function () {
-        Route::get('book', BookManager::class)->name('book.index');
+        Route::get('book', BookList::class)->name('book.index');
+        Route::get('book-create', BookForm::class)->name('book.create');
+        Route::get('book-edit/{book}', BookForm::class)->name('book.edit');
     });
 
+    Route::middleware('permission:مدیریت پرداخت ها')->group(function () {
+        Route::get('payment', PaymentManager::class)->name('payment.index');
+    });
 
+    Route::middleware('permission:مدیریت ایمپورت پرداخت ها')->group(function () {
+        Route::get('payment/import', PaymentImporter::class)->name('payment.import');
+    });
+
+    Route::middleware('permission:مدیریت بخش آنالیز')->group(function () {
+        Route::get('analytics', AnalyTicsIndex::class)->name('analytics.index');
+    });
 
 
 });

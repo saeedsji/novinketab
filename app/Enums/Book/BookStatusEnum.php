@@ -19,6 +19,17 @@ enum BookStatusEnum: int
         };
     }
 
+    public static function fromPersian(string $status): self
+    {
+        return match (trim($status)) {
+            'تولید شده' => self::PRODUCED,
+            'منتشر شده' => self::PUBLISHED,
+            'لغو شده' => self::CANCELED,
+            'در حال تولید' => self::DRAFT, // Assuming 'in production' maps to draft
+            default => self::DRAFT,
+        };
+    }
+
     /**
      * Get the corresponding badge HTML for the status.
      */

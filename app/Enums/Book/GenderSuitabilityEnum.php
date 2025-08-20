@@ -16,4 +16,12 @@ enum GenderSuitabilityEnum: int
             self::BOTH => 'هردو',
         };
     }
+    public static function fromPersian(string $gender): self
+    {
+        return match (trim($gender)) {
+            'مرد' => self::MAN,
+            'زن' => self::WOMAN,
+            default => self::BOTH,
+        };
+    }
 }

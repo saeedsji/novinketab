@@ -16,4 +16,15 @@ enum BookFormatEnum: int
             self::PRINTED => 'چاپی',
         };
     }
+
+    public static function fromPersian(string $formatName): ?self
+    {
+        return match (trim($formatName)) {
+            'دیجیتال صوتی' => self::AUDIO,
+            'صوتی' => self::AUDIO,
+            'الکترونیکی' => self::EBOOK,
+            'چاپی' => self::PRINTED,
+            default => null,
+        };
+    }
 }

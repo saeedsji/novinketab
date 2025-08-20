@@ -6,12 +6,13 @@
     <div class="relative">
         {{-- Search Input --}}
         <input
+            wire:key="contact-search-input"
             type="text"
             wire:model.live.debounce.300ms="search"
-            wire:focus="handleFocus"
+            wire:focus.live.debounce.300ms="handleFocus"
             @keydown.escape.prevent="open = false"
-            placeholder="جستجوی مخاطب با نام، ایمیل یا موبایل..."
-            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm pl-10"
+            placeholder="جستجوی کتاب با عنوان یا کد مالی..."
+            class="form-input"
             autocomplete="off"
         />
 
@@ -30,13 +31,12 @@
                         wire:click="clearSelection"
                         class="text-gray-400 hover:text-gray-600"
                     >
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                        <x-icons.x-square class="text-red-700 mt-2"/>
                     </button>
                 </div>
             @endif
         </div>
     </div>
-
 
     {{-- Search Results Dropdown --}}
     <div
@@ -46,25 +46,27 @@
         class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto"
         style="display: none;"
     >
-        @if(!$contacts->isEmpty())
+        @if(!$books->isEmpty())
             <ul>
-                @foreach($contacts as $contact)
+                @foreach($books as $book)
                     <li
-                        wire:click="selectContact('{{ $contact->uuid }}')"
+                        wire:click="selectBook({{ $book->id }})"
                         class="px-4 py-3 cursor-pointer hover:bg-indigo-50 transition-colors duration-150"
+                        role="option"
+                        aria-selected="false"
                     >
-                        <div class="font-semibold text-gray-800">{{ $contact->name }}</div>
-                        <div class="text-sm text-gray-500">{{ $contact->email }} - {{ $contact->phone ?? 'بدون موبایل' }}</div>
+                        <div class="font-semibold text-gray-800">{{ $book->title }}</div>
+                        <div class="text-sm text-gray-500">کد مالی: {{ $book->financial_code }}</div>
                     </li>
                 @endforeach
             </ul>
         @elseif(strlen($search) > 0)
             <div class="p-4 text-center text-gray-500">
-                مخاطبی با مشخصات «{{ $search }}» یافت نشد.
+                کتابی با مشخصات «{{ $search }}» یافت نشد.
             </div>
         @else
             <div class="p-4 text-center text-gray-500">
-                برای جستجو، شروع به تایپ کنید یا یک مخاطب اخیر را انتخاب کنید.
+                برای جستجو، شروع به تایپ کنید.
             </div>
         @endif
     </div>

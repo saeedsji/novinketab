@@ -14,6 +14,40 @@
                         کاربران
                     </x-panel.nav-link>
                 @endcan
+
+                @can('مدیریت کتاب‌ها')
+                    <x-panel.nav-link href="{{ route('book.index') }}"
+                                      :active=" request()->is('admin/book')">
+                        <x-icons.book/>
+                        کتاب‌ها
+                    </x-panel.nav-link>
+                @endcan
+
+                @can('مدیریت ایمپورت پرداخت ها')
+                    <x-panel.nav-link href="{{ route('payment.import') }}"
+                                      :active=" request()->is('admin/payment/import')">
+                        <x-icons.download/>
+                        ایمپورت پرداخت ها
+                    </x-panel.nav-link>
+                @endcan
+
+                @can('مدیریت پرداخت ها')
+                    <x-panel.nav-link href="{{ route('payment.index') }}"
+                                      :active=" request()->is('admin/payment')">
+                        <x-icons.activity/>
+                        پرداخت ها
+                    </x-panel.nav-link>
+                @endcan
+
+                @can('مدیریت بخش آنالیز')
+                    <x-panel.nav-link href="{{ route('analytics.index') }}"
+                                      :active=" request()->is('admin/analytics')">
+                        <x-icons.pie-chart/>
+                        تحلیل و آنالیز
+                    </x-panel.nav-link>
+                @endcan
+
+
                 @can('مدیریت دسته بندی ها')
                     <x-panel.nav-link href="{{ route('category.index') }}" :active=" request()->is('admin/category')">
                         <x-icons.hash/>
@@ -53,13 +87,7 @@
                         ناشران
                     </x-panel.nav-link>
                 @endcan
-                @can('مدیریت کتاب‌ها')
-                    <x-panel.nav-link href="{{ route('book.index') }}"
-                                      :active=" request()->is('admin/book')">
-                        <x-icons.book/>
-                        کتاب‌ها
-                    </x-panel.nav-link>
-                @endcan
+
 
 
 

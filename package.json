@@ -19,6 +19,7 @@
     },
     "dependencies": {
         "@tailwindcss/forms": "^0.5.10",
+        "chart.js": "^4.5.0",
         "sweetalert2": "^11.22.2",
         "toastr": "^2.1.4"
     }

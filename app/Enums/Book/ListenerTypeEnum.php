@@ -16,4 +16,13 @@ enum ListenerTypeEnum: int
             self::SPECIALIZED => 'تخصصی',
         };
     }
+
+    public static function fromPersian(string $type): self
+    {
+        return match (trim($type)) {
+            'عمیق' => self::DEEP,
+            'تخصصی' => self::SPECIALIZED,
+            default => self::SUPERFICIAL,
+        };
+    }
 }

@@ -25,15 +25,13 @@ return new class extends Migration
             $table->tinyInteger('status')->default(BookStatusEnum::DRAFT->value)->comment('وضعیت کتاب');
 
             // هزینه ها و قیمت ها
-            $table->bigInteger('estimated_cost')->default(0)->comment('هزینه تخمینی تمام شده');
             $table->bigInteger('print_price')->nullable()->comment('قیمت کتاب چاپی');
-            $table->bigInteger('suggested_price')->default(0)->comment('قیمت پیشنهادی');
+            $table->bigInteger('suggested_price')->nullable()->comment('قیمت پیشنهادی');
 
             // اطلاعات عددی کتاب
-            $table->integer('estimated_pages')->nullable()->comment('تعداد تخمینی صفحه');
             $table->integer('track_count')->nullable()->comment('تعداد ترک صوتی');
             $table->integer('print_pages')->nullable()->comment('تعداد صفحات کتاب چاپی');
-            $table->integer('breakeven_sales_count')->default(0)->comment('تعداد فروش برای رسیدن به نقطه سر به سر');
+            $table->integer('breakeven_sales_count')->nullable()->comment('تعداد فروش برای رسیدن به نقطه سر به سر');
 
             // پلتفرم ها و قالب ها به صورت JSON ذخیره می شوند تا چند انتخاب را پشتیبانی کنند
             $table->json('sales_platforms')->nullable()->comment('پلتفرم های فروش');
