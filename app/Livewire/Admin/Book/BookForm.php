@@ -51,6 +51,7 @@ class BookForm extends Component
     public $sales_platforms = [];
     public $formats = [];
     public $tags = [];
+    public string $newTag = '';
 
     // Relationships
     public array $selectedAuthors = [];
@@ -78,8 +79,8 @@ class BookForm extends Component
             'translator_rate' => 'nullable|integer|min:0|max:100',
             'max_discount' => 'nullable|integer|min:0|max:100',
             'publish_date' => 'nullable|date',
-            'formats' => 'array',
-            'sales_platforms' => 'array',
+            'formats' => 'nullable|array',
+            'sales_platforms' => 'nullable|array',
             'tags' => 'array|nullable',
         ];
     }
@@ -104,7 +105,7 @@ class BookForm extends Component
 
     public function save(): void
     {
-        $validatedData = $this->validate();
+         $this->validate();
 
         $bookData = [
             'financial_code' => $this->financial_code,
@@ -159,6 +160,24 @@ class BookForm extends Component
             $result = array_merge($result, $this->formatCategoriesForSelect($categories, $category->id, $prefix . '—'));
         }
         return $result;
+    }
+
+    public function addTag(): void
+    {
+        $tag = trim($this->newTag);
+        // فقط در صورتی تگ را اضافه کن که خالی نباشد و تکراری هم نباشد
+        if ($tag && !in_array($tag, $this->tags)) {
+            $this->tags[] = $tag;
+        }
+        // پس از افزودن، فیلد ورودی را خالی کن
+        $this->newTag = '';
+    }
+    public function removeTag(int $index): void
+    {
+        if (isset($this->tags[$index])) {
+            unset($this->tags[$index]);
+            $this->tags = array_values($this->tags); // re-index array
+        }
     }
 
     public function render()

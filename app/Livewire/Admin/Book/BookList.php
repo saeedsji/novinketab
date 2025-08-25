@@ -48,6 +48,7 @@ class BookList extends Component
     public string $filterGender = '';
     public ?string $filterPublishDateFrom = null;
     public ?string $filterPublishDateTo = null;
+    public array $filterTags = [];
 
 
     protected function priceRules(): array
@@ -80,7 +81,7 @@ class BookList extends Component
             'search', 'filterStatus', 'filterCategory', 'filterAuthor', 'filterTranslator',
             'filterNarrator', 'filterComposer', 'filterPublisher', 'filterFormat',
             'filterPlatform', 'filterListenerType', 'filterGender', 'filterPublishDateFrom',
-            'filterPublishDateTo'
+            'filterPublishDateTo','filterTags'
         ]);
         $this->resetPage();
     }
@@ -155,6 +156,11 @@ class BookList extends Component
             ->when($this->filterTranslator, fn($q) => $q->whereHas('translators', fn($sub) => $sub->where('id', $this->filterTranslator)))
             ->when($this->filterNarrator, fn($q) => $q->whereHas('narrators', fn($sub) => $sub->where('id', $this->filterNarrator)))
             ->when($this->filterComposer, fn($q) => $q->whereHas('composers', fn($sub) => $sub->where('id', $this->filterComposer)))
+            ->when($this->filterTags, function ($q) {
+                foreach ($this->filterTags as $tag) {
+                    $q->whereJsonContains('tags', $tag);
+                }
+            })
             ->when($this->filterPublisher, fn($q) => $q->whereHas('publishers', fn($sub) => $sub->where('id', $this->filterPublisher)));
 
         // Calculate stats based on the filtered query
@@ -169,6 +175,17 @@ class BookList extends Component
         // Apply sorting and pagination
         $books = $query->orderBy($this->sortCol, $this->sortAsc ? 'asc' : 'desc')->paginate(10);
 
+        $allTags = Book::query()
+            ->whereNotNull('tags')
+            ->get('tags')
+            ->pluck('tags')
+            ->flatten()
+            ->unique()
+            ->filter()
+            ->sort()
+            ->values()
+            ->all();
+
         // Data for filter dropdowns
         $filterData = [
             'categories' => $this->formatCategoriesForSelect(Category::all()),
@@ -182,6 +199,7 @@ class BookList extends Component
             'salesPlatforms' => SalesPlatformEnum::cases(),
             'listenerTypes' => ListenerTypeEnum::cases(),
             'genderSuitabilities' => GenderSuitabilityEnum::cases(),
+            'allTags' => $allTags,
         ];
 
         return view('livewire.admin.book.book-list', [
