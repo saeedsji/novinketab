@@ -11,7 +11,7 @@
 @endphp
 
 <li>
-    <a href="{{ $href }}" {{ $attributes->merge(['class' => $classes . ' group flex pr-2 gap-x-2 rounded-sm p-2 text-sm leading-6 font-semibold']) }} wire:navigate>
+    <a href="{{ $href }}" {{ $attributes->merge(['class' => $classes . ' group flex pr-2 gap-x-2 rounded-sm p-2 text-sm leading-6 font-semibold']) }}>
         {{ $slot }}
     </a>
 </li>
