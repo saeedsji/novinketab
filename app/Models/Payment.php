@@ -16,6 +16,7 @@ class Payment extends Model
      */
     protected $fillable = [
         'book_id',
+        'import_log_id',
         'sale_platform',
         'platform_id',
         'sale_date',

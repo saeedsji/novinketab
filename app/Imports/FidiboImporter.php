@@ -6,6 +6,7 @@ use App\Enums\Book\SalesPlatformEnum;
 use App\Models\Book;
 use App\Models\ImportLog;
 use App\Models\Payment;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
@@ -62,9 +63,10 @@ class FidiboImporter implements ToCollection, WithStartRow, WithChunkReading, Wi
                 }
 
                 $platformId = $saleDateStr . '-' . $bookId;
-                $saleDate = Jalalian::fromFormat('Y-m-d H:i:s', $saleDateStr)->toCarbon();
+                $saleDate = Carbon::parse($saleDateStr)->toDateTimeString();
 
                 $paymentData = [
+                    'import_log_id'=>$this->importLog->id,
                     'book_id'         => $book->id,
                     'sale_platform'   => SalesPlatformEnum::FIDIBO,
                     'sale_date'       => $saleDate,

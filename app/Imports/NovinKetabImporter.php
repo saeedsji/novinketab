@@ -75,6 +75,7 @@ class NovinKetabImporter implements ToCollection, WithStartRow, WithChunkReading
                 $platformShareRial = $amountRial * 0.30;
 
                 $paymentData = [
+                    'import_log_id'=>$this->importLog->id,
                     'book_id'         => $book->id,
                     'sale_platform'   => SalesPlatformEnum::NOVIN_KETAB,
                     'sale_date'       => $saleDate,

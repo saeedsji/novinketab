@@ -1,6 +1,9 @@
+@section('title', 'ایمپورت خروجی پلتفرم ها')
+
+
 <div dir="rtl">
     {{-- Page Title --}}
-    <h1 class="text-2xl font-bold mb-6 text-gray-700">ایمپورت گروهی پرداخت‌ها</h1>
+    <h1 class="text-2xl font-bold mb-6 text-gray-700">ایمپورت خروجی پلتفرم ها</h1>
 
     {{-- Import Form --}}
     <div class="bg-white p-6 rounded-lg shadow-md mb-8">
@@ -102,8 +105,12 @@
                         class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">وضعیت
                     </th>
                     <th scope="col"
+                        class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">پرداخت‌های مرتبط
+                    </th>
+                    <th scope="col"
                         class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">آمار
                     </th>
+
                     <th scope="col" class="relative px-6 py-3">
                         <span class="sr-only">عملیات</span>
                     </th>
@@ -111,7 +118,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($logs as $log)
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-gray-50" wire:key="log-{{ $log->id }}">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $log->user?->name ?? 'نامشخص' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $log->platform->pName() }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $log->created_at }}</td>
@@ -127,6 +134,9 @@
                                 {{ $log->status }}
                             </span>
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">
+                            {{ number_format($log->payments_count) }}
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             <div class="flex flex-col">
                                 <span class="text-green-600">جدید: {{ $log->new_records }}</span>
@@ -134,15 +144,40 @@
                                 <span class="text-red-600">ناموفق: {{ $log->failed_records }}</span>
                             </div>
                         </td>
+
                         <td class="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
-                            <button wire:click="showLogDetails({{ $log->id }})"
-                                    class="text-indigo-600 hover:text-indigo-900">مشاهده جزئیات
-                            </button>
+                            <div class="flex items-center justify-end gap-x-4">
+                                <button wire:click="showLogDetails({{ $log->id }})"
+                                        class="text-indigo-600 hover:text-indigo-900">مشاهده جزئیات
+                                </button>
+
+                                {{-- Delete Button --}}
+                                <button
+                                    wire:click="deleteLog({{ $log->id }})"
+                                    wire:confirm="هشدار جدی! آیا از حذف این لاگ و تعداد {{ $log->payments_count }} پرداخت مرتبط با آن اطمینان دارید؟ این عملیات غیر قابل بازگشت است."
+                                    class="text-red-600 hover:text-red-900 flex items-center gap-1"
+                                    wire:loading.attr="disabled"
+                                    wire:target="deleteLog({{ $log->id }})">
+
+                                    {{-- Loading Spinner --}}
+                                    <div wire:loading wire:target="deleteLog({{ $log->id }})">
+                                        <x-icons.spinner class="w-4 h-4"/>
+                                    </div>
+
+                                    {{-- Button Text --}}
+                                    <div wire:loading.remove wire:target="deleteLog({{ $log->id }})">
+                                        حذف
+                                    </div>
+                                    <div wire:loading wire:target="deleteLog({{ $log->id }})">
+                                        صبر کنید...
+                                    </div>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">هیچ لاگی یافت نشد.</td>
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">هیچ لاگی یافت نشد.</td>
                     </tr>
                 @endforelse
                 </tbody>
@@ -177,12 +212,7 @@
                         </div>
                     @endif
                 </div>
-                <div class="mt-5 sm:mt-6">
-                    <button type="button" @click="$wire.set('showModal', false)"
-                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none sm:text-sm">
-                        بستن
-                    </button>
-                </div>
+                {{-- No need for a close button here as per your instruction --}}
             </x-dialog.panel>
         </x-dialog>
     @endif

@@ -80,6 +80,7 @@ class KetabrahImporter implements ToCollection, WithStartRow, WithChunkReading, 
 
 
                 $paymentData = [
+                    'import_log_id'=>$this->importLog->id,
                     'book_id' => $book->id,
                     'sale_platform' => SalesPlatformEnum::KETABRAH,
                     'sale_date' => $saleDate,

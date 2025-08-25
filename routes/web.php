@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HomeController;
+use App\Http\Middleware\AdminAuth;
 use App\Livewire\Admin\Access\PermissionManager;
 use App\Livewire\Admin\Access\RoleManager;
 use App\Livewire\Admin\Analytics\AnalyticsIndex;
@@ -29,25 +30,22 @@ Route::get('/', [HomeController::class, 'index'])->name('home.inedx');
 Route::get('logout', [HomeController::class, 'logout'])->name('logout');
 Route::get('test', [HomeController::class, 'test'])->name('test');
 
-//->middleware([AdminAuth::class])
-Route::prefix('admin')->group(function () {
+
+Route::prefix('admin')->middleware([AdminAuth::class])->group(function () {
 
 
     Route::get('dashboard', DashboardIndex::class)->name('dashboard.index');
 
-    Route::get('user', UserManager::class)->name('user.index');
-    Route::get('session', SessionManager::class)->name('session.index');
-
     Route::middleware('permission:مدیریت کاربران')->group(function () {
-
+        Route::get('user', UserManager::class)->name('user.index');
+        Route::get('session', SessionManager::class)->name('session.index');
     });
 
     Route::middleware('role:ادمین اصلی')->group(function () {
+        Route::get('role', RoleManager::class)->name('role.index');
+        Route::get('permission', PermissionManager::class)->name('permission.index');
 
     });
-
-    Route::get('role', RoleManager::class)->name('role.index');
-    Route::get('permission', PermissionManager::class)->name('permission.index');
 
     Route::middleware('permission:مدیریت دسته بندی ها')->group(function () {
         Route::get('category', CategoryManager::class)->name('category.index');
@@ -79,7 +77,7 @@ Route::prefix('admin')->group(function () {
         Route::get('payment', PaymentManager::class)->name('payment.index');
     });
 
-    Route::middleware('permission:مدیریت ایمپورت پرداخت ها')->group(function () {
+    Route::middleware('permission:مدیریت ایمپورت از پلتفرم ها')->group(function () {
         Route::get('payment/import', PaymentImporter::class)->name('payment.import');
     });
 

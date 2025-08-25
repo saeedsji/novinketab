@@ -11,6 +11,9 @@ use App\Imports\TaghchehImporter;
 use App\Models\ImportLog;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log as SystemLog;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
@@ -110,26 +113,64 @@ class PaymentImporter extends Component
         }
     }
 
-
+    /**
+     * Show details of a specific log in a modal.
+     */
     public function showLogDetails(ImportLog $log)
     {
+        // Eager load the details to prevent extra queries in the view
         $this->selectedLog = $log;
         $this->showModal = true;
     }
 
+    /**
+     * Deletes an import log and all associated payments.
+     */
+    public function deleteLog(ImportLog $log)
+    {
+        DB::beginTransaction();
+        try {
+            // Delete associated payments first
+            $log->payments()->delete();
+
+            // Delete the physical file from storage
+            if (Storage::disk('local')->exists($log->file_path)) {
+                Storage::disk('local')->delete($log->file_path);
+            }
+
+            // Delete the log record itself
+            $log->delete();
+
+            DB::commit();
+
+            $this->dispatch('toast', text: 'لاگ و پرداخت‌های مرتبط با آن با موفقیت حذف شدند.', icon: 'success');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            SystemLog::error("Failed to delete import log: " . $e->getMessage());
+            $this->dispatch('toast', text: 'خطایی در هنگام حذف لاگ رخ داد.', icon: 'error');
+        }
+    }
+
+    /**
+     * Renders the component view.
+     */
     public function render()
     {
-        $query = ImportLog::with('user')->select([ // <-- Select only the columns needed for the list view
-            'id',
-            'user_id',
-            'platform',
-            'status',
-            'new_records',
-            'updated_records',
-            'failed_records',
-            'created_at',
-        ])
+        $query = ImportLog::with('user')
+            ->select([
+                'id',
+                'user_id',
+                'platform',
+                'status',
+                'new_records',
+                'updated_records',
+                'failed_records',
+                'created_at',
+            ])
+            ->withCount('payments')
             ->latest();
+
 
         if ($this->filterPlatform) {
             $query->where('platform', $this->filterPlatform);

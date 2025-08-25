@@ -23,11 +23,11 @@
                     </x-panel.nav-link>
                 @endcan
 
-                @can('مدیریت ایمپورت پرداخت ها')
+                @can('مدیریت ایمپورت از پلتفرم ها')
                     <x-panel.nav-link href="{{ route('payment.import') }}"
                                       :active=" request()->is('admin/payment/import')">
                         <x-icons.download/>
-                        ایمپورت پرداخت ها
+                        ایمپورت از پلتفرم ها
                     </x-panel.nav-link>
                 @endcan
 

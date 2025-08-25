@@ -185,11 +185,6 @@
                             @error('sale_platform') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
 
-                        <div>
-                            <label for="platform_id" class="form-label">شناسه پلتفرم</label>
-                            <input type="text" wire:model="platform_id" id="platform_id" class="form-input mt-1">
-                            @error('platform_id') <span class="form-error">{{ $message }}</span> @enderror
-                        </div>
 
                         <div>
                             <label for="sale_date" class="form-label">تاریخ و زمان فروش</label>
@@ -197,33 +192,38 @@
                             @error('sale_date') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
 
-                        <div x-data="numericFormatter(@entangle('amount'))">
+                        <div>
                             <label for="amount" class="form-label">مبلغ کل (ریال)</label>
-                            <input type="text" inputmode="numeric" x-model="formattedValue" id="amount" class="form-input mt-1 text-left" dir="ltr">
+                            <input type="number"id="amount" class="form-input mt-1 text-left" dir="ltr"
+                                   wire:model="amount">
                             @error('amount') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
 
-                        <div x-data="numericFormatter(@entangle('publisher_share'))">
+                        <div>
                             <label for="publisher_share" class="form-label">سهم ناشر (ریال)</label>
-                            <input type="text" inputmode="numeric" x-model="formattedValue" id="publisher_share" class="form-input mt-1 text-left" dir="ltr">
+                            <input type="number"  id="publisher_share" class="form-input mt-1 text-left" dir="ltr"
+                                   wire:model="publisher_share">
                             @error('publisher_share') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
 
-                        <div x-data="numericFormatter(@entangle('platform_share'))">
+                        <div>
                             <label for="platform_share" class="form-label">سهم پلتفرم (ریال)</label>
-                            <input type="text" inputmode="numeric" x-model="formattedValue" id="platform_share" class="form-input mt-1 text-left" dir="ltr">
+                            <input type="number"  id="platform_share" class="form-input mt-1 text-left" dir="ltr"
+                                   wire:model="platform_share">
                             @error('platform_share') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
 
-                        <div x-data="numericFormatter(@entangle('discount'))">
+                        <div>
                             <label for="discount" class="form-label">تخفیف (ریال)</label>
-                            <input type="text" inputmode="numeric" x-model="formattedValue" id="discount" class="form-input mt-1 text-left" dir="ltr">
+                            <input type="number"  id="discount" class="form-input mt-1 text-left" dir="ltr"
+                                   wire:model="discount">
                             @error('discount') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
 
-                        <div x-data="numericFormatter(@entangle('tax'))">
+                        <div>
                             <label for="tax" class="form-label">مالیات (ریال)</label>
-                            <input type="text" inputmode="numeric" x-model="formattedValue" id="tax" class="form-input mt-1 text-left" dir="ltr">
+                            <input type="number"  id="tax" class="form-input mt-1 text-left" dir="ltr"
+                                   wire:model="tax">
                             @error('tax') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
 
@@ -243,36 +243,6 @@
 </div>
 
 @push('scripts')
-    {{-- =================================================================== --}}
-    {{-- Alpine.js Helper for Number Formatting --}}
-    {{-- =================================================================== --}}
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('numericFormatter', (livewireModel) => ({
-                // The raw numeric value from Livewire (e.g., 1000000)
-                livewireModel: livewireModel,
-                // The formatted string for the input display (e.g., "1,000,000")
-                get formattedValue() {
-                    return this.format(this.livewireModel);
-                },
-                set formattedValue(value) {
-                    this.livewireModel = this.unformat(value);
-                },
-                format(number) {
-                    if (number === null || number === undefined || isNaN(parseInt(number))) {
-                        return '';
-                    }
-                    return new Intl.NumberFormat('en-US').format(number);
-                },
-                unformat(formattedString) {
-                    if (formattedString === null || formattedString === '' || typeof formattedString === 'undefined') {
-                        return null;
-                    }
-                    const unformatted = parseInt(String(formattedString).replace(/[^0-9]/g, ''));
-                    return isNaN(unformatted) ? null : unformatted;
-                }
-            }));
-        })
-    </script>
+
 
 @endpush

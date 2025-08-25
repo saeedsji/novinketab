@@ -61,6 +61,7 @@ class NavarImporter implements ToCollection, WithStartRow, WithChunkReading, Wit
 
 
                 $paymentData = [
+                    'import_log_id'=>$this->importLog->id,
                     'book_id' => $book->id,
                     'sale_platform' => SalesPlatformEnum::NAVAR,
                     'sale_date' => $saleDate,

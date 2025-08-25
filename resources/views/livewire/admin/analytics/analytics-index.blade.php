@@ -1,5 +1,5 @@
-<div dir="rtl" class="bg-gray-50">
-    <div class="p-4 sm:p-6 lg:p-8">
+<div dir="rtl" class="bg-gray-50" wire:init="loadCharts">
+<div class="p-4 sm:p-6 lg:p-8">
         <div class="sm:flex sm:items-center sm:justify-between mb-8">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">داشبورد آنالیز جامع</h1>

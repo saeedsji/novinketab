@@ -2,7 +2,9 @@
 
 namespace App\Imports;
 
-use App\Enums\Book\SalesPlatformEnum; // Correct Namespace
+use App\Enums\Book\SalesPlatformEnum;
+
+// Correct Namespace
 use App\Models\Book;
 use App\Models\ImportLog;
 use App\Models\Payment;
@@ -37,12 +39,12 @@ class TaghchehImporter implements ToCollection, WithStartRow, WithChunkReading, 
         foreach ($rows as $row) {
             try {
                 // Accessing columns by their index
-                $bookTitle        = trim($row[0]); // عنوان
-                $saleDateStr      = $row[3]; // تاریخ
-                $saleTimeStr      = $row[4]; // ساعت
-                $amountRial       = (int) $row[5]; // مبلغ (ریال)
-                $platformShareRial= (int) $row[7]; // سهم درگاه (ریال)
-                $publisherShareRial = (int) $row[8]; // سهم ناشر (ریال)
+                $bookTitle = trim($row[0]); // عنوان
+                $saleDateStr = $row[3]; // تاریخ
+                $saleTimeStr = $row[4]; // ساعت
+                $amountRial = (int)$row[5]; // مبلغ (ریال)
+                $platformShareRial = (int)$row[7]; // سهم درگاه (ریال)
+                $publisherShareRial = (int)$row[8]; // سهم ناشر (ریال)
 
                 if (empty($bookTitle) || empty($saleDateStr) || empty($saleTimeStr)) {
                     continue;
@@ -83,14 +85,15 @@ class TaghchehImporter implements ToCollection, WithStartRow, WithChunkReading, 
                 $platformId = "{$saleDate->timestamp}-{$book->id}-{$amountRial}";
 
                 $paymentData = [
-                    'book_id'         => $book->id,
-                    'sale_platform'   => SalesPlatformEnum::TAGHCHEH,
-                    'sale_date'       => $saleDate,
-                    'amount'          => $amountRial,
+                    'import_log_id' => $this->importLog->id,
+                    'book_id' => $book->id,
+                    'sale_platform' => SalesPlatformEnum::TAGHCHEH,
+                    'sale_date' => $saleDate,
+                    'amount' => $amountRial,
                     'publisher_share' => $publisherShareRial,
-                    'platform_share'  => $platformShareRial,
-                    'discount'        => 0, // As requested
-                    'tax'             => 0, // No tax column in the file
+                    'platform_share' => $platformShareRial,
+                    'discount' => 0, // As requested
+                    'tax' => 0, // No tax column in the file
                 ];
 
                 $payment = Payment::updateOrCreate(
@@ -100,7 +103,8 @@ class TaghchehImporter implements ToCollection, WithStartRow, WithChunkReading, 
 
                 if ($payment->wasRecentlyCreated) {
                     $this->newRecords++;
-                } else {
+                }
+                else {
                     $this->updatedRecords++;
                 }
             } catch (\Exception $e) {
@@ -113,13 +117,13 @@ class TaghchehImporter implements ToCollection, WithStartRow, WithChunkReading, 
     public function registerEvents(): array
     {
         return [
-            AfterImport::class => function(AfterImport $event) {
+            AfterImport::class => function (AfterImport $event) {
                 $this->importLog->update([
-                    'new_records'     => $this->newRecords,
+                    'new_records' => $this->newRecords,
                     'updated_records' => $this->updatedRecords,
-                    'failed_records'  => $this->failedRecords,
-                    'details'         => $this->failedDetails,
-                    'status'          => 'completed',
+                    'failed_records' => $this->failedRecords,
+                    'details' => $this->failedDetails,
+                    'status' => 'completed',
                 ]);
             },
         ];

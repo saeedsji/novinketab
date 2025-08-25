@@ -12,6 +12,7 @@ return new class extends Migration {
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('import_log_id')->constrained('import_logs')->cascadeOnDelete();
             $table->foreignId('book_id')->constrained('books')->onDelete('cascade');
             $table->tinyInteger('sale_platform')->comment('پلتفرم');
             $table->string('platform_id')->comment('شناسه پلتفرم');
