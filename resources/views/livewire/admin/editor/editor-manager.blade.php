@@ -1,4 +1,4 @@
-@section('title', 'مدیریت ناشران')
+@section('title', 'مدیریت تدوینگران')
 
 <div dir="rtl">
     {{-- =================================================================== --}}
@@ -6,14 +6,14 @@
     {{-- =================================================================== --}}
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-xl font-semibold text-text-main">مدیریت ناشران</h1>
-            <p class="mt-2 text-sm text-text-muted">ایجاد، ویرایش و مدیریت اطلاعات ناشران.</p>
+            <h1 class="text-xl font-semibold text-text-main">مدیریت تدوینگران</h1>
+            <p class="mt-2 text-sm text-text-muted">ایجاد، ویرایش و مدیریت اطلاعات تدوینگران.</p>
         </div>
         <div class="mt-4 sm:mt-0  flex-none flex items-center gap-x-2">
             <x-forms.excel-export-button name="exportExcel"/>
             <button wire:click="create" type="button" class="btn btn-primary">
                 <x-icons.plus class="h-5 w-5"/>
-                <span>افزودن ناشر</span>
+                <span>افزودن تدوینگر</span>
             </button>
         </div>
     </div>
@@ -24,19 +24,9 @@
     <div class="card mt-6 p-4">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="md:col-span-1">
-                <label for="search" class="form-label">جستجو در نام یا توضیحات ناشر</label>
+                <label for="search" class="form-label">جستجو در نام یا توضیحات تدوینگر</label>
                 <input type="text" wire:model.live.debounce.300ms="search" id="search" placeholder="جستجو..."
                        class="form-input mt-1">
-            </div>
-            <div>
-                <label for="filter_share_percent_min" class="form-label">حداقل درصد سهم</label>
-                <input type="number" wire:model.live.debounce.300ms="filter_share_percent_min"
-                       id="filter_share_percent_min" class="form-input mt-1" placeholder="مثال: 10" min="0" max="100">
-            </div>
-            <div>
-                <label for="filter_share_percent_max" class="form-label">حداکثر درصد سهم</label>
-                <input type="number" wire:model.live.debounce.300ms="filter_share_percent_max"
-                       id="filter_share_percent_max" class="form-input mt-1" placeholder="مثال: 50" min="0" max="100">
             </div>
         </div>
     </div>
@@ -51,10 +41,7 @@
                 <thead class="table-header">
                 <tr>
                     <th scope="col" class="table-header-cell">
-                        <x-ui.sortable column="name" :$sortCol :$sortAsc>نام ناشر</x-ui.sortable>
-                    </th>
-                    <th scope="col" class="table-header-cell">
-                        <x-ui.sortable column="share_percent" :$sortCol :$sortAsc>درصد سهم</x-ui.sortable>
+                        <x-ui.sortable column="name" :$sortCol :$sortAsc>نام تدوینگر</x-ui.sortable>
                     </th>
                     <th scope="col" class="table-header-cell">
                         <x-ui.sortable column="books_count" :$sortCol :$sortAsc>تعداد کتاب‌ها</x-ui.sortable>
@@ -69,29 +56,22 @@
                 </tr>
                 </thead>
                 <tbody class="table-body">
-                @forelse ($publishers as $publisher)
-                    <tr wire:key="publisher-{{ $publisher->id }}" class="table-row">
-                        <td class="table-cell font-medium text-text-main">{{ $publisher->name }}</td>
-                        <td class="table-cell-muted">
-                            @if($publisher->share_percent)
-                                {{ $publisher->share_percent }}%
-                            @else
-                                -
-                            @endif
-                        </td>
-                        <td class="table-cell-mutedr">{{ $publisher->books_count }}</td>
-                        <td class="table-cell-muted" title="{{$publisher->description}}">{{ \Illuminate\Support\Str::limit($publisher->description,60) }}</td>
+                @forelse ($editors as $editor)
+                    <tr wire:key="editor-{{ $editor->id }}" class="table-row">
+                        <td class="table-cell font-medium text-text-main">{{ $editor->name }}</td>
+                        <td class="table-cell-muted">{{ $editor->books_count }}</td>
+                        <td class="table-cell-muted" title="{{$editor->description}}">{{ \Illuminate\Support\Str::limit($editor->description,60) }}</td>
 
                         <td class="table-cell-muted">
-                            {{ \Morilog\Jalali\Jalalian::forge($publisher->created_at)->format('Y/m/d') }}
+                            {{ \Morilog\Jalali\Jalalian::forge($editor->created_at)->format('Y/m/d') }}
                         </td>
                         <td class="table-cell text-center">
                             <div class="flex items-center justify-center gap-x-4">
-                                <button wire:click="edit({{ $publisher->id }})" class="btn-link" title="ویرایش">
+                                <button wire:click="edit({{ $editor->id }})" class="btn-link" title="ویرایش">
                                     <x-icons.edit class="h-5 w-5"/>
                                 </button>
-                                <button wire:click="delete({{ $publisher->id }})"
-                                        wire:confirm="آیا از حذف دائمی این ناشر اطمینان دارید؟" class="btn-link-danger"
+                                <button wire:click="delete({{ $editor->id }})"
+                                        wire:confirm="آیا از حذف دائمی این تدوینگر اطمینان دارید؟" class="btn-link-danger"
                                         title="حذف">
                                     <x-icons.trash-2 class="h-5 w-5"/>
                                 </button>
@@ -100,41 +80,33 @@
                     </tr>
                 @empty
                     <tr class="table-row">
-                        <td class="table-cell-muted py-12 text-center" colspan="5">
-                            هیچ ناشری یافت نشد.
+                        <td class="table-cell-muted py-12 text-center" colspan="4">
+                            هیچ تدوینگری یافت نشد.
                         </td>
                     </tr>
                 @endforelse
                 </tbody>
             </table>
         </div>
-        @if($publishers->hasPages())
-            <div class="mt-4">{{ $publishers->links() }}</div>
+        @if($editors->hasPages())
+            <div class="mt-4">{{ $editors->links() }}</div>
         @endif
     </div>
 
 
     {{-- =================================================================== --}}
-    {{-- Publisher Add/Edit Modal --}}
+    {{-- Editor Add/Edit Modal --}}
     {{-- =================================================================== --}}
-    <x-dialog wire:model="showModal" maxWidth="lg">
+    <x-dialog wire:model="showModal" maxWidth="md">
         <x-dialog.panel>
             <form wire:submit="save">
                 <div class="p-6">
                     <h3 class="text-lg font-medium text-text-main">{{ $modalTitle }}</h3>
                     <div class="mt-6 space-y-6">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <div>
-                                <label for="name" class="form-label">نام ناشر</label>
-                                <input type="text" wire:model="name" id="name" class="form-input mt-1">
-                                @error('name') <span class="form-error">{{ $message }}</span> @enderror
-                            </div>
-                            <div>
-                                <label for="share_percent" class="form-label">درصد سهم ناشر</label>
-                                <input type="number" wire:model="share_percent" id="share_percent"
-                                       class="form-input mt-1" min="0" max="100">
-                                @error('share_percent') <span class="form-error">{{ $message }}</span> @enderror
-                            </div>
+                        <div>
+                            <label for="name" class="form-label">نام تدوینگر</label>
+                            <input type="text" wire:model="name" id="name" class="form-input mt-1">
+                            @error('name') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
 
                         <div>

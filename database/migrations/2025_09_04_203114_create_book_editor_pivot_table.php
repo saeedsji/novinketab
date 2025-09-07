@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('publishers', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->tinyInteger('share_percent')->unsigned()->nullable();
-            $table->timestamps();
+        Schema::create('book_editor_pivot', function (Blueprint $table) {
+            $table->primary(['book_id', 'editor_id']);
+            $table->foreignId('book_id')->constrained('books')->onDelete('cascade');
+            $table->foreignId('editor_id')->constrained('editors')->onDelete('cascade');
         });
     }
 
@@ -25,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('publishers');
+        Schema::dropIfExists('book_editor_pivot');
     }
 };

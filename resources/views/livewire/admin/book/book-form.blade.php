@@ -61,11 +61,11 @@
                 {{-- Section 2: People --}}
                 <fieldset
                     class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border border-border-color p-4 rounded-lg">
-                    <legend class="text-base font-semibold text-text-main px-2">عوامل</legend>
+                    <legend class="text-base font-semibold text-text-main px-2">عوامل <span class="font-normal">(برای انتخاب چند مورد ctrl را نگه دارید)</span></legend>
                     <div class="sm:col-span-12 md:col-span-6">
                         <label for="selectedAuthors" class="form-label">نویسنده(ها)</label>
                         <select id="selectedAuthors" wire:model.live="selectedAuthors" multiple
-                                class="form-input form-select mt-1 h-32">
+                                class="form-input form-select mt-1 h-64">
                             @foreach($authors as $author)
                                 <option value="{{ $author->id }}">{{ $author->name }}</option>
                             @endforeach
@@ -75,16 +75,22 @@
                     <div class="sm:col-span-12 md:col-span-6">
                         <label for="selectedPublishers" class="form-label">ناشر(ها)</label>
                         <select id="selectedPublishers" wire:model.live="selectedPublishers" multiple
-                                class="form-input form-select mt-1 h-32">
+                                class="form-input form-select mt-1 h-64">
                             @foreach($publishers as $publisher)
-                                <option value="{{ $publisher->id }}">{{ $publisher->name }}</option>
+                                <option value="{{ $publisher->id }}">
+                                    {{ $publisher->name }}
+                                    {{-- Only show share percent if it exists --}}
+                                    @if(isset($publisher->share_percent))
+                                        (٪{{ $publisher->share_percent }})
+                                    @endif
+                                </option>
                             @endforeach
                         </select>
                     </div>
                     <div class="sm:col-span-12 md:col-span-4">
                         <label for="selectedTranslators" class="form-label">مترجم(ها)</label>
                         <select id="selectedTranslators" wire:model.live="selectedTranslators" multiple
-                                class="form-input form-select mt-1 h-32">
+                                class="form-input form-select mt-1 h-64">
                             @foreach($translators as $translator)
                                 <option value="{{ $translator->id }}">{{ $translator->name }}</option>
                             @endforeach
@@ -93,7 +99,7 @@
                     <div class="sm:col-span-12 md:col-span-4">
                         <label for="selectedNarrators" class="form-label">گوینده(ها)</label>
                         <select id="selectedNarrators" wire:model.live="selectedNarrators" multiple
-                                class="form-input form-select mt-1 h-32">
+                                class="form-input form-select mt-1 h-64">
                             @foreach($narrators as $narrator)
                                 <option value="{{ $narrator->id }}">{{ $narrator->name }}</option>
                             @endforeach
@@ -102,7 +108,7 @@
                     <div class="sm:col-span-12 md:col-span-4">
                         <label for="selectedComposers" class="form-label">آهنگساز(ها)</label>
                         <select id="selectedComposers" wire:model.live="selectedComposers" multiple
-                                class="form-input form-select mt-1 h-32">
+                                class="form-input form-select mt-1 h-64">
                             @foreach($composers as $composer)
                                 <option value="{{ $composer->id }}">{{ $composer->name }}</option>
                             @endforeach

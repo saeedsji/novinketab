@@ -118,6 +118,15 @@ class Book extends Model
     }
 
     /**
+     * رابطه چند به چند با مدل تدوینگر.
+     */
+    public function editors(): BelongsToMany
+    {
+        // فرض بر این است که مدل editor و جدول واسط book_editor_pivot وجود دارد
+        return $this->belongsToMany(Editor::class, 'book_editor_pivot');
+    }
+
+    /**
      * رابطه چند به چند با مدل ناشر.
      */
     public function publishers(): BelongsToMany

@@ -2,10 +2,12 @@
 
 namespace App\Livewire\Admin\Narrator;
 
-use Livewire\Component;
-
+use App\Exports\NarratorsExport;
 use App\Models\Narrator;
+use Illuminate\Database\Eloquent\Builder;
+use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 class NarratorManager extends Component
 {
@@ -13,8 +15,8 @@ class NarratorManager extends Component
 
     // Properties for Narrator Management
     public ?Narrator $editingNarrator = null;
-    public string $name = '';
-    public string $description = '';
+    public ?string $name = null;
+    public ?string $description = null;
 
     // Modal & Title
     public bool $showModal = false;
@@ -108,7 +110,7 @@ class NarratorManager extends Component
     /**
      * Sorts the narrator list by the given column.
      */
-    public function sortBy($column): void
+    public function sortBy(string $column): void
     {
         if ($this->sortCol === $column) {
             $this->sortAsc = !$this->sortAsc;
@@ -119,17 +121,40 @@ class NarratorManager extends Component
     }
 
     /**
+     * Creates and returns the base query for narrators with filters and sorting.
+     */
+    protected function getNarratorsQuery(): Builder
+    {
+        return Narrator::query()
+            ->withCount('books')
+            ->when($this->search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('description', 'like', '%' . $search . '%');
+                });
+            })
+            ->orderBy($this->sortCol, $this->sortAsc ? 'asc' : 'desc');
+    }
+
+    /**
+     * Exports the filtered data to an Excel file.
+     */
+    public function exportExcel()
+    {
+        $query = $this->getNarratorsQuery();
+
+        return Excel::download(
+            new NarratorsExport($query),
+            'narrators-' . now()->format('Y-m-d') . '.xlsx'
+        );
+    }
+
+    /**
      * Renders the component.
      */
     public function render()
     {
-        $narrators = Narrator::query()
-            ->withCount('books') // Eager load book count
-            ->when($this->search, function ($query, $search) {
-                $query->where('name', 'like', '%' . $search . '%');
-            })
-            ->orderBy($this->sortCol, $this->sortAsc ? 'asc' : 'desc')
-            ->paginate(10);
+        $narrators = $this->getNarratorsQuery()->paginate(10);
 
         return view('livewire.admin.narrator.narrator-manager', [
             'narrators' => $narrators,

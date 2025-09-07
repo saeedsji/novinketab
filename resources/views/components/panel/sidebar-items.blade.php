@@ -80,6 +80,13 @@
                         آهنگسازان
                     </x-panel.nav-link>
                 @endcan
+                @can('مدیریت تدوینگران')
+                    <x-panel.nav-link href="{{ route('editor.index') }}"
+                                      :active=" request()->is('admin/editor')">
+                        <x-icons.edit/>
+                        تدوینگران
+                    </x-panel.nav-link>
+                @endcan
                 @can('مدیریت ناشران')
                     <x-panel.nav-link href="{{ route('publisher.index') }}"
                                       :active=" request()->is('admin/publisher')">

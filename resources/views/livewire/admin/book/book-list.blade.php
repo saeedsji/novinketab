@@ -7,7 +7,8 @@
             <h1 class="text-xl font-semibold text-text-main">مدیریت کتاب‌ها</h1>
             <p class="mt-2 text-sm text-text-muted">ایجاد، ویرایش و مدیریت اطلاعات کتاب‌ها.</p>
         </div>
-        <div class="mt-4 sm:mt-0 sm:flex-none">
+        <div class="mt-4 sm:mt-0 flex-none flex items-center gap-x-2">
+            <x-forms.excel-export-button name="exportExcel"/>
             <a href="{{ route('book.create') }}" class="btn btn-primary">
                 <x-icons.plus class="h-5 w-5"/>
                 <span>افزودن کتاب</span>
@@ -47,10 +48,11 @@
         <div class="border-t border-border-main p-4">
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {{-- Search --}}
-                <div>
+                <div class="lg:col-span-2">
                     <label for="search" class="form-label">جستجو (عنوان یا کد مالی)</label>
                     <input type="text" wire:model.live.debounce.300ms="search" id="search" class="form-input mt-1">
                 </div>
+
 
                 {{-- Status --}}
                 <div>
@@ -88,7 +90,8 @@
                 {{-- Translator --}}
                 <div>
                     <label for="filterTranslator" class="form-label">مترجم</label>
-                    <select wire:model.live="filterTranslator" id="filterTranslator" class="form-input form-select mt-1">
+                    <select wire:model.live="filterTranslator" id="filterTranslator"
+                            class="form-input form-select mt-1">
                         <option value="">همه</option>
                         @foreach($translators as $translator)
                             <option value="{{ $translator->id }}">{{ $translator->name }}</option>
@@ -96,7 +99,7 @@
                     </select>
                 </div>
 
-                {{-- Narrator --}}
+                {{-- Other filters... --}}
                 <div>
                     <label for="filterNarrator" class="form-label">گوینده</label>
                     <select wire:model.live="filterNarrator" id="filterNarrator" class="form-input form-select mt-1">
@@ -106,8 +109,6 @@
                         @endforeach
                     </select>
                 </div>
-
-                {{-- Composer --}}
                 <div>
                     <label for="filterComposer" class="form-label">آهنگساز</label>
                     <select wire:model.live="filterComposer" id="filterComposer" class="form-input form-select mt-1">
@@ -117,19 +118,21 @@
                         @endforeach
                     </select>
                 </div>
-
-                {{-- Publisher --}}
                 <div>
                     <label for="filterPublisher" class="form-label">ناشر</label>
                     <select wire:model.live="filterPublisher" id="filterPublisher" class="form-input form-select mt-1">
                         <option value="">همه</option>
                         @foreach($publishers as $publisher)
-                            <option value="{{ $publisher->id }}">{{ $publisher->name }}</option>
+                            <option value="{{ $publisher->id }}">
+                                {{ $publisher->name }}
+                                {{-- Only show share percent if it exists --}}
+                                @if(isset($publisher->share_percent))
+                                    (٪{{ $publisher->share_percent }})
+                                @endif
+                            </option>
                         @endforeach
                     </select>
                 </div>
-
-                {{-- Format --}}
                 <div>
                     <label for="filterFormat" class="form-label">قالب</label>
                     <select wire:model.live="filterFormat" id="filterFormat" class="form-input form-select mt-1">
@@ -139,8 +142,6 @@
                         @endforeach
                     </select>
                 </div>
-
-                {{-- Platform --}}
                 <div>
                     <label for="filterPlatform" class="form-label">پلتفرم فروش</label>
                     <select wire:model.live="filterPlatform" id="filterPlatform" class="form-input form-select mt-1">
@@ -150,19 +151,16 @@
                         @endforeach
                     </select>
                 </div>
-
-                {{-- Listener Type --}}
                 <div>
                     <label for="filterListenerType" class="form-label">نوع مخاطب</label>
-                    <select wire:model.live="filterListenerType" id="filterListenerType" class="form-input form-select mt-1">
+                    <select wire:model.live="filterListenerType" id="filterListenerType"
+                            class="form-input form-select mt-1">
                         <option value="">همه</option>
                         @foreach($listenerTypes as $type)
                             <option value="{{ $type->value }}">{{ $type->pName() }}</option>
                         @endforeach
                     </select>
                 </div>
-
-                {{-- Gender --}}
                 <div>
                     <label for="filterGender" class="form-label">مناسب برای جنسیت</label>
                     <select wire:model.live="filterGender" id="filterGender" class="form-input form-select mt-1">
@@ -172,19 +170,28 @@
                         @endforeach
                     </select>
                 </div>
-
-                {{-- Publish Date From --}}
                 <div>
                     <label for="filterPublishDateFrom" class="form-label">تاریخ انتشار از</label>
-                    <input type="date" wire:model.live="filterPublishDateFrom" id="filterPublishDateFrom" class="form-input mt-1">
+                    <input type="date" wire:model.live="filterPublishDateFrom" id="filterPublishDateFrom"
+                           class="form-input mt-1">
                 </div>
-
-                {{-- Publish Date To --}}
                 <div>
                     <label for="filterPublishDateTo" class="form-label">تاریخ انتشار تا</label>
-                    <input type="date" wire:model.live="filterPublishDateTo" id="filterPublishDateTo" class="form-input mt-1">
+                    <input type="date" wire:model.live="filterPublishDateTo" id="filterPublishDateTo"
+                           class="form-input mt-1">
                 </div>
 
+
+                {{-- Tags Filter (NEW) --}}
+                <div class="lg:col-span-2">
+                    <label for="filterTags" class="form-label">تگ‌ها (برای انتخاب چند مورد Ctrl را نگه دارید)</label>
+                    <select wire:model.live="filterTags" id="filterTags" class="form-input form-select mt-1" multiple
+                            size="5">
+                        @foreach($allTags as $tag)
+                            <option value="{{ $tag }}">{{ $tag }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
         </div>
     </details>
@@ -226,14 +233,17 @@
                         <td class="table-cell-muted">{!! $book->status->badge() !!}</td>
                         <td class="table-cell text-center">
                             <div class="flex items-center justify-center gap-x-4">
-                                <button wire:click="openPriceModal({{ $book->id }})" class="btn-link-secondary" title="مدیریت قیمت">
-                                    <x-icons.check-circle class="h-5 w-5"/>
+                                <button wire:click="openPriceModal({{ $book->id }})" class="btn-link-secondary"
+                                        title="مدیریت قیمت">
+                                    <x-icons.dollar class="h-5 w-5"/>
                                 </button>
-                                <a href="{{ route('book.edit', ['book' => $book->id]) }}" class="btn-link" title="ویرایش">
+                                <a href="{{ route('book.edit', ['book' => $book->id]) }}" class="btn-link"
+                                   title="ویرایش">
                                     <x-icons.edit class="h-5 w-5"/>
                                 </a>
                                 <button wire:click="deleteBook({{ $book->id }})"
-                                        wire:confirm="آیا از حذف دائمی این کتاب اطمینان دارید؟" class="btn-link-danger" title="حذف">
+                                        wire:confirm="آیا از حذف دائمی این کتاب اطمینان دارید؟" class="btn-link-danger"
+                                        title="حذف">
                                     <x-icons.trash-2 class="h-5 w-5"/>
                                 </button>
                             </div>
@@ -252,14 +262,15 @@
         @endif
     </div>
 
-    {{-- Price Management Modal (Unchanged) --}}
+    {{-- Price Management Modal --}}
     <x-dialog wire:model="showPriceModal" maxWidth="2xl">
         <x-dialog.panel>
             <div class="p-6">
-                <h3 class="text-lg font-medium text-text-main">مدیریت قیمت برای: <span class="font-bold">{{ $pricingBook?->title }}</span></h3>
+                <h3 class="text-lg font-medium text-text-main">مدیریت قیمت برای: <span
+                        class="font-bold">{{ $pricingBook?->title }}</span></h3>
                 <form wire:submit="saveNewPrice" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <div>
-                        <label for="new_price" class="form-label">قیمت جدید (تومان)</label>
+                        <label for="new_price" class="form-label">قیمت جدید (ریال)</label>
                         <input type="number" wire:model="new_price" id="new_price" class="form-input mt-1">
                         @error('new_price') <span class="form-error">{{ $message }}</span> @enderror
                     </div>
@@ -278,7 +289,7 @@
                         <table class="table-main">
                             <thead class="table-header">
                             <tr>
-                                <th class="table-header-cell">قیمت (تومان)</th>
+                                <th class="table-header-cell">قیمت (ریال)</th>
                                 <th class="table-header-cell">تاریخ اعمال</th>
                                 <th class="table-header-cell">ثبت توسط</th>
                             </tr>
@@ -291,7 +302,11 @@
                                     <td class="table-cell-muted">{{ $price->user->name ?? 'N/A' }}</td>
                                 </tr>
                             @empty
-                                <tr><td class="table-cell-muted text-center py-4" colspan="3">تاریخچه قیمتی وجود ندارد.</td></tr>
+                                <tr>
+                                    <td class="table-cell-muted text-center py-4" colspan="3">تاریخچه قیمتی وجود
+                                        ندارد.
+                                    </td>
+                                </tr>
                             @endforelse
                             </tbody>
                         </table>

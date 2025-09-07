@@ -2,10 +2,13 @@
 
 namespace App\Livewire\Admin\Publisher;
 
-use Livewire\Component;
-
+use App\Exports\PublishersExport;
 use App\Models\Publisher;
+use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class PublisherManager extends Component
 {
@@ -13,17 +16,21 @@ class PublisherManager extends Component
 
     // Properties for Publisher Management
     public ?Publisher $editingPublisher = null;
-    public string $name = '';
-    public string $description = '';
+    public  $name = '';
+    public  $description = '';
+    public  $share_percent = 0; // New property for publisher's share
 
     // Modal & Title
     public bool $showModal = false;
     public string $modalTitle = '';
 
-    // Search & Sorting
+    // Search, Sorting & Filtering
     public string $search = '';
     public string $sortCol = 'created_at';
     public bool $sortAsc = false;
+    public ?int $filter_share_percent_min = null;
+    public ?int $filter_share_percent_max = null;
+
 
     /**
      * Validation rules for saving a publisher.
@@ -33,16 +40,16 @@ class PublisherManager extends Component
         return [
             'name' => 'required|string|min:3|max:255|unique:publishers,name,' . $this->editingPublisher?->id,
             'description' => 'nullable|string|max:1000',
+            'share_percent' => 'required|integer|min:0|max:100', // Validation for the new field
         ];
     }
 
     /**
-     * Reset pagination when searching.
+     * Reset pagination when searching or filtering.
      */
-    public function updatedSearch(): void
-    {
-        $this->resetPage();
-    }
+    public function updatedSearch(): void { $this->resetPage(); }
+    public function updatedFilterSharePercentMin(): void { $this->resetPage(); }
+    public function updatedFilterSharePercentMax(): void { $this->resetPage(); }
 
     /**
      * Resets the form fields to their default state.
@@ -50,7 +57,7 @@ class PublisherManager extends Component
     public function resetForm(): void
     {
         $this->resetValidation();
-        $this->reset('editingPublisher', 'name', 'description');
+        $this->reset('editingPublisher', 'name', 'description', 'share_percent');
     }
 
     /**
@@ -72,6 +79,7 @@ class PublisherManager extends Component
         $this->editingPublisher = $publisher;
         $this->name = $publisher->name;
         $this->description = $publisher->description;
+        $this->share_percent = $publisher->share_percent; // Load share_percent for editing
         $this->modalTitle = 'ویرایش ناشر';
         $this->showModal = true;
     }
@@ -119,21 +127,50 @@ class PublisherManager extends Component
     }
 
     /**
+     * Creates and returns the base query for publishers with filters and sorting.
+     * This method centralizes the query logic.
+     */
+    protected function getPublishersQuery(): Builder
+    {
+        return Publisher::query()
+            ->withCount('books')
+            ->when($this->search, function ($query, $search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%');
+            })
+            ->when($this->filter_share_percent_min, function ($query, $min) {
+                $query->where('share_percent', '>=', $min);
+            })
+            ->when($this->filter_share_percent_max, function ($query, $max) {
+                $query->where('share_percent', '<=', $max);
+            })
+            ->orderBy($this->sortCol, $this->sortAsc ? 'asc' : 'desc');
+    }
+
+    /**
+     * Exports the filtered data to an Excel file using the centralized query.
+     */
+    public function exportExcel()
+    {
+        // Use the centralized query method
+        $query = $this->getPublishersQuery();
+
+        return Excel::download(
+            new PublishersExport($query),
+            'publishers-' . now()->format('Y-m-d') . '.xlsx'
+        );
+    }
+
+    /**
      * Renders the component.
      */
     public function render()
     {
-        $publishers = Publisher::query()
-            ->withCount('books') // Eager load book count
-            ->when($this->search, function ($query, $search) {
-                $query->where('name', 'like', '%' . $search . '%');
-            })
-            ->orderBy($this->sortCol, $this->sortAsc ? 'asc' : 'desc')
-            ->paginate(10);
+        // Paginate the results from the centralized query method
+        $publishers = $this->getPublishersQuery()->paginate(10);
 
         return view('livewire.admin.publisher.publisher-manager', [
             'publishers' => $publishers,
         ]);
     }
 }
-

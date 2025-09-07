@@ -3,12 +3,15 @@
 namespace App\Livewire\Admin\Payment;
 
 use App\Enums\Book\SalesPlatformEnum;
+use App\Exports\PaymentsExport;
 use App\Models\Author;
 use App\Models\Category;
 use App\Models\Payment;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PaymentManager extends Component
 {
@@ -50,7 +53,7 @@ class PaymentManager extends Component
         return [
             'book_id' => 'required|exists:books,id',
             'sale_platform' => ['required', Rule::enum(SalesPlatformEnum::class)],
-            'platform_id' => 'required|string|max:255',
+            'platform_id' => 'nullable|string|max:255',
             'sale_date' => 'required|date',
             'amount' => 'required|integer|min:0',
             'publisher_share' => 'required|integer|min:0',
@@ -130,9 +133,12 @@ class PaymentManager extends Component
             'amount', 'publisher_share', 'platform_share', 'discount', 'tax');
     }
 
-    public function render()
+    /**
+     * Creates and returns the base query for payments with all filters applied.
+     */
+    protected function getPaymentsQuery(): Builder
     {
-        $paymentsQuery = Payment::query()
+        return Payment::query()
             ->with('book') // Eager load book to prevent N+1 queries
             ->when($this->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
@@ -150,6 +156,24 @@ class PaymentManager extends Component
             ->when($this->filterAmountMax, fn($query) => $query->where('amount', '<=', $this->filterAmountMax))
             ->when($this->filterAuthor, fn($query, $authorId) => $query->whereHas('book.authors', fn($q) => $q->where('id', $authorId)))
             ->when($this->filterCategory, fn($query, $categoryId) => $query->whereHas('book.category', fn($q) => $q->where('id', $categoryId)));
+    }
+
+    /**
+     * Exports the filtered data to an Excel file.
+     */
+    public function exportExcel()
+    {
+        $query = $this->getPaymentsQuery()->orderBy($this->sortCol, $this->sortAsc ? 'asc' : 'desc');
+
+        return Excel::download(
+            new PaymentsExport($query),
+            'payments-' . now()->format('Y-m-d-H-i') . '.xlsx'
+        );
+    }
+
+    public function render()
+    {
+        $paymentsQuery = $this->getPaymentsQuery();
 
         // Calculate stats based on the filtered query
         $statsQuery = clone $paymentsQuery;
@@ -168,7 +192,7 @@ class PaymentManager extends Component
             'payments' => $payments,
             'stats' => $stats,
             'authors' => Author::orderBy('name')->get(),
-            'categories' => Category::whereNull('parent_id')->with('children')->get(), // Or a flat list if you prefer
+            'categories' => Category::whereNull('parent_id')->with('children')->get(),
         ]);
     }
 }

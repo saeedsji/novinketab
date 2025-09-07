@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Publisher extends Model
+class Editor extends Model
 {
-    protected $fillable = ['name', 'description', 'share_percent'];
+    protected $fillable = ['name', 'description'];
 
     public function books(): BelongsToMany
     {
-        return $this->belongsToMany(Book::class, 'book_publisher_pivot');
+        return $this->belongsToMany(Book::class, 'book_editor_pivot');
     }
 }

@@ -106,9 +106,9 @@ class AnalyticsService
         return [
             'salesOverTime' => $this->getSalesOverTimeData(),
             'salesByPlatform' => $this->getSalesByPlatformData(),
-            'topBooksByRevenue' => $this->getTopBooksChartData('revenue'),
-            'topBooksBySales' => $this->getTopBooksChartData('sales_count'),
-            'salesByCategory' => $this->getSalesByCategoryData(),
+            'topBooksByRevenue' => $this->getTopBooksChartData('revenue',50),
+            'topBooksBySales' => $this->getTopBooksChartData('sales_count',50),
+            'salesByCategory' => $this->getSalesByCategoryData(10),
             'salesByGender' => $this->getSalesByEnumData('gender_suitability', GenderSuitabilityEnum::class),
         ];
     }

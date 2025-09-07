@@ -11,6 +11,7 @@ use App\Livewire\Admin\Book\BookList;
 use App\Livewire\Admin\Category\CategoryManager;
 use App\Livewire\Admin\Composer\ComposerManager;
 use App\Livewire\Admin\Dashboard\DashboardIndex;
+use App\Livewire\Admin\Editor\EditorManager;
 use App\Livewire\Admin\Narrator\NarratorManager;
 use App\Livewire\Admin\Payment\PaymentImporter;
 use App\Livewire\Admin\Payment\PaymentManager;
@@ -62,6 +63,9 @@ Route::prefix('admin')->middleware([AdminAuth::class])->group(function () {
     });
     Route::middleware('permission:مدیریت آهنگسازان')->group(function () {
         Route::get('composer', ComposerManager::class)->name('composer.index');
+    });
+    Route::middleware('permission:مدیریت تدوینگران')->group(function () {
+        Route::get('editor', EditorManager::class)->name('editor.index');
     });
     Route::middleware('permission:مدیریت ناشران')->group(function () {
         Route::get('publisher', PublisherManager::class)->name('publisher.index');

@@ -2,10 +2,12 @@
 
 namespace App\Livewire\Admin\Author;
 
-use Livewire\Component;
-
+use App\Exports\AuthorsExport;
 use App\Models\Author;
+use Illuminate\Database\Eloquent\Builder;
+use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AuthorManager extends Component
 {
@@ -13,8 +15,8 @@ class AuthorManager extends Component
 
     // Properties for Author Management
     public ?Author $editingAuthor = null;
-    public string $name = '';
-    public string $description = '';
+    public ?string $name = null;
+    public ?string $description = null;
 
     // Modal & Title
     public bool $showModal = false;
@@ -108,7 +110,7 @@ class AuthorManager extends Component
     /**
      * Sorts the author list by the given column.
      */
-    public function sortBy($column): void
+    public function sortBy(string $column): void
     {
         if ($this->sortCol === $column) {
             $this->sortAsc = !$this->sortAsc;
@@ -119,21 +121,43 @@ class AuthorManager extends Component
     }
 
     /**
+     * Creates and returns the base query for authors with filters and sorting.
+     */
+    protected function getAuthorsQuery(): Builder
+    {
+        return Author::query()
+            ->withCount('books')
+            ->when($this->search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('description', 'like', '%' . $search . '%');
+                });
+            })
+            ->orderBy($this->sortCol, $this->sortAsc ? 'asc' : 'desc');
+    }
+
+    /**
+     * Exports the filtered data to an Excel file.
+     */
+    public function exportExcel()
+    {
+        $query = $this->getAuthorsQuery();
+
+        return Excel::download(
+            new AuthorsExport($query),
+            'authors-' . now()->format('Y-m-d') . '.xlsx'
+        );
+    }
+
+    /**
      * Renders the component.
      */
     public function render()
     {
-        $authors = Author::query()
-            ->withCount('books') // Eager load book count
-            ->when($this->search, function ($query, $search) {
-                $query->where('name', 'like', '%' . $search . '%');
-            })
-            ->orderBy($this->sortCol, $this->sortAsc ? 'asc' : 'desc')
-            ->paginate(10);
+        $authors = $this->getAuthorsQuery()->paginate(10);
 
         return view('livewire.admin.author.author-manager', [
             'authors' => $authors,
         ]);
     }
 }
-

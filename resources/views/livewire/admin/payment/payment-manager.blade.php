@@ -9,7 +9,8 @@
             <h1 class="text-xl font-semibold text-text-main">مدیریت پرداخت‌ها</h1>
             <p class="mt-2 text-sm text-text-muted">لیست تمام پرداخت‌های ثبت شده در سیستم.</p>
         </div>
-        <div class="mt-4 sm:mt-0 sm:flex-none">
+        <div class="mt-4 sm:mt-0 flex-none flex items-center gap-x-2">
+            <x-forms.excel-export-button name="exportExcel"/>
             <button wire:click="createPayment" type="button" class="btn btn-primary">
                 <x-icons.plus class="h-5 w-5"/>
                 <span>افزودن پرداخت</span>
@@ -124,8 +125,8 @@
                 @forelse ($payments as $payment)
                     <tr wire:key="payment-{{ $payment->id }}" class="table-row">
                         <td class="table-cell">
-                            <div class="font-medium text-text-main">{{ $payment->book->title }}</div>
-                            <div class="text-text-muted text-sm font-mono">{{ $payment->book->financial_code }}</div>
+                            <div class="font-medium text-text-main">{{ $payment->book->title ?? '-' }}</div>
+                            <div class="text-text-muted text-sm font-mono">{{ $payment->book->financial_code ?? '-' }}</div>
                         </td>
                         <td class="table-cell-muted">
                             <div>{{ \App\Enums\Book\SalesPlatformEnum::from($payment->sale_platform)->pName() }}</div>
@@ -160,7 +161,7 @@
     {{-- =================================================================== --}}
     {{-- Payment Add/Edit Modal --}}
     {{-- =================================================================== --}}
-    <x-dialog wire:model="showPaymentModal" maxWidth="2xl">
+    <x-dialog wire:model="showPaymentModal" maxWidth="3xl">
         <x-dialog.panel>
             <form wire:submit="savePayment">
                 <div class="p-6">
@@ -169,7 +170,8 @@
                         <div class="sm:col-span-3">
                             <label for="book_id" class="form-label">کتاب</label>
                             <div class="mt-1">
-                                <livewire:shared.book-selector wire:model.live="book_id" :selectedBookId="$book_id" />
+                                {{-- Assuming livewire:shared.book-selector is a component you have for selecting books --}}
+                                @livewire('shared.book-selector', ['selectedBookId' => $book_id], key('book-selector-'.$book_id))
                             </div>
                             @error('book_id') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
@@ -185,6 +187,11 @@
                             @error('sale_platform') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
 
+                        <div>
+                            <label for="platform_id" class="form-label">شناسه پلتفرم</label>
+                            <input type="text" wire:model="platform_id" id="platform_id" class="form-input mt-1">
+                            @error('platform_id') <span class="form-error">{{ $message }}</span> @enderror
+                        </div>
 
                         <div>
                             <label for="sale_date" class="form-label">تاریخ و زمان فروش</label>
@@ -194,35 +201,35 @@
 
                         <div>
                             <label for="amount" class="form-label">مبلغ کل (ریال)</label>
-                            <input type="number"id="amount" class="form-input mt-1 text-left" dir="ltr"
+                            <input type="number" id="amount" class="form-input mt-1 text-left" dir="ltr"
                                    wire:model="amount">
                             @error('amount') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
 
                         <div>
                             <label for="publisher_share" class="form-label">سهم ناشر (ریال)</label>
-                            <input type="number"  id="publisher_share" class="form-input mt-1 text-left" dir="ltr"
+                            <input type="number" id="publisher_share" class="form-input mt-1 text-left" dir="ltr"
                                    wire:model="publisher_share">
                             @error('publisher_share') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
 
                         <div>
                             <label for="platform_share" class="form-label">سهم پلتفرم (ریال)</label>
-                            <input type="number"  id="platform_share" class="form-input mt-1 text-left" dir="ltr"
+                            <input type="number" id="platform_share" class="form-input mt-1 text-left" dir="ltr"
                                    wire:model="platform_share">
                             @error('platform_share') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
 
                         <div>
                             <label for="discount" class="form-label">تخفیف (ریال)</label>
-                            <input type="number"  id="discount" class="form-input mt-1 text-left" dir="ltr"
+                            <input type="number" id="discount" class="form-input mt-1 text-left" dir="ltr"
                                    wire:model="discount">
                             @error('discount') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
 
                         <div>
                             <label for="tax" class="form-label">مالیات (ریال)</label>
-                            <input type="number"  id="tax" class="form-input mt-1 text-left" dir="ltr"
+                            <input type="number" id="tax" class="form-input mt-1 text-left" dir="ltr"
                                    wire:model="tax">
                             @error('tax') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
@@ -241,8 +248,3 @@
         </x-dialog.panel>
     </x-dialog>
 </div>
-
-@push('scripts')
-
-
-@endpush

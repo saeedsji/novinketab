@@ -29,6 +29,7 @@ class DashboardIndex extends Component
         $recentImports = ImportLog::with('user')
             ->select([
                 'id',
+                'user_id',
                 'platform',
                 'status',
                 'created_at',
