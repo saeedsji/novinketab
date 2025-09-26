@@ -5,7 +5,6 @@ namespace App\Livewire\Admin\Book;
 use App\Enums\Book\BookFormatEnum;
 use App\Enums\Book\BookStatusEnum;
 use App\Enums\Book\GenderSuitabilityEnum;
-use App\Enums\Book\ListenerTypeEnum;
 use App\Enums\Book\SalesPlatformEnum;
 use App\Exports\BooksExport;
 use App\Models\Author;
@@ -21,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
+use Morilog\Jalali\Jalalian;
 
 class BookList extends Component
 {
@@ -34,7 +34,7 @@ class BookList extends Component
 
     // Search, Filter & Sort
     public string $search = '';
-    public string $sortCol = 'id';
+    public string $sortCol = 'publish_date';
     public bool $sortAsc = false;
 
     // --- Filter Properties ---
@@ -47,12 +47,26 @@ class BookList extends Component
     public string $filterPublisher = '';
     public string $filterFormat = '';
     public string $filterPlatform = '';
-    public string $filterListenerType = '';
     public string $filterGender = '';
     public ?string $filterPublishDateFrom = null;
     public ?string $filterPublishDateTo = null;
     public array $filterTags = [];
 
+    /**
+     * @var int|null شناسه کتابی که جزئیات آن نمایش داده می‌شود
+     */
+    public ?int $expandedBookId = null;
+
+
+    /**
+     * متد برای باز یا بسته کردن بخش جزئیات
+     */
+    public function toggleExpand($bookId): void
+    {
+        // اگر روی ردیفی که باز است دوباره کلیک شود، آن را می‌بندد
+        // در غیر این صورت، ردیف جدید را باز می‌کند
+        $this->expandedBookId = $this->expandedBookId === $bookId ? null : $bookId;
+    }
 
     protected function priceRules(): array
     {
@@ -80,7 +94,7 @@ class BookList extends Component
         $this->reset([
             'search', 'filterStatus', 'filterCategory', 'filterAuthor', 'filterTranslator',
             'filterNarrator', 'filterComposer', 'filterPublisher', 'filterFormat',
-            'filterPlatform', 'filterListenerType', 'filterGender', 'filterPublishDateFrom',
+            'filterPlatform', 'filterGender', 'filterPublishDateFrom',
             'filterPublishDateTo', 'filterTags'
         ]);
         $this->resetPage();
@@ -136,15 +150,22 @@ class BookList extends Component
 
     protected function getBooksQuery(): Builder
     {
+        $filterPublishDateFrom = $this->filterPublishDateFrom
+            ? Jalalian::fromFormat('Y/m/d', $this->filterPublishDateFrom)->toCarbon()->format('Y-m-d')
+            : null;
+
+        $filterPublishDateTo = $this->filterPublishDateTo
+            ? Jalalian::fromFormat('Y/m/d', $this->filterPublishDateTo)->toCarbon()->format('Y-m-d')
+            : null;
+
         return Book::query()
             ->when($this->search, fn($q) => $q->where(fn($sub) => $sub->where('title', 'like', '%' . $this->search . '%')->orWhere('financial_code', 'like', '%' . $this->search . '%')))
             ->when($this->filterStatus, fn($q) => $q->where('status', $this->filterStatus))
-            ->when($this->filterListenerType, fn($q) => $q->where('listener_type', $this->filterListenerType))
             ->when($this->filterGender, fn($q) => $q->where('gender_suitability', $this->filterGender))
             ->when($this->filterFormat, fn($q) => $q->whereJsonContains('formats', $this->filterFormat))
             ->when($this->filterPlatform, fn($q) => $q->whereJsonContains('sales_platforms', $this->filterPlatform))
-            ->when($this->filterPublishDateFrom, fn($q) => $q->where('publish_date', '>=', $this->filterPublishDateFrom))
-            ->when($this->filterPublishDateTo, fn($q) => $q->where('publish_date', '<=', $this->filterPublishDateTo))
+            ->when($this->filterPublishDateFrom, fn($q) => $q->where('publish_date', '>=', $filterPublishDateFrom))
+            ->when($this->filterPublishDateTo, fn($q) => $q->where('publish_date', '<=', $filterPublishDateTo))
             ->when($this->filterCategory, fn($q) => $q->where('category_id', $this->filterCategory))
             ->when($this->filterAuthor, fn($q) => $q->whereHas('authors', fn($sub) => $sub->where('id', $this->filterAuthor)))
             ->when($this->filterTranslator, fn($q) => $q->whereHas('translators', fn($sub) => $sub->where('id', $this->filterTranslator)))
@@ -179,14 +200,18 @@ class BookList extends Component
 
     public function render()
     {
-        $query = $this->getBooksQuery()->with(['category', 'authors', 'latestPrice']);
+        $query = $this->getBooksQuery()->with([
+            'category', 'authors', 'latestPrice', 'translators',
+            'narrators', 'composers', 'editors', 'publishers'
+        ]);
 
         $statsQuery = clone $query;
         $stats = [
             'total_books' => $statsQuery->count(),
             'published_books' => (clone $statsQuery)->where('status', BookStatusEnum::PUBLISHED->value)->count(),
-            'draft_books' => (clone $statsQuery)->where('status', BookStatusEnum::DRAFT->value)->count(),
             'canceled_books' => (clone $statsQuery)->where('status', BookStatusEnum::CANCELED->value)->count(),
+            'shared_books' => (clone $statsQuery)->where('status', BookStatusEnum::SHARED->value)->count(),
+
         ];
 
         $books = $query->orderBy($this->sortCol, $this->sortAsc ? 'asc' : 'desc')->paginate(10);
@@ -211,7 +236,6 @@ class BookList extends Component
             'bookStatuses' => BookStatusEnum::cases(),
             'bookFormats' => BookFormatEnum::cases(),
             'salesPlatforms' => SalesPlatformEnum::cases(),
-            'listenerTypes' => ListenerTypeEnum::cases(),
             'genderSuitabilities' => GenderSuitabilityEnum::cases(),
             'allTags' => $allTags,
         ];

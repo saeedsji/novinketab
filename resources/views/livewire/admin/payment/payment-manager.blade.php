@@ -85,12 +85,24 @@
                     </select>
                 </div>
                 <div>
-                    <label for="filterDateFrom" class="form-label">از تاریخ فروش</label>
-                    <input type="date" wire:model.live="filterDateFrom" id="filterDateFrom" class="form-input mt-1">
+                    <div>
+                        <label class="block mb-1">از تاریخ فروش </label>
+                        <x-forms.persian-date-picker
+                            name="filterDateFrom"
+                            wire:model.live="filterDateFrom"
+                            :value="null"
+                            :options="['time' => false, 'persianDigits' => true]"
+                        />
+                    </div>
                 </div>
                 <div>
-                    <label for="filterDateTo" class="form-label">تا تاریخ فروش</label>
-                    <input type="date" wire:model.live="filterDateTo" id="filterDateTo" class="form-input mt-1">
+                    <label class="block mb-1">تا تاریخ فروش </label>
+                    <x-forms.persian-date-picker
+                        name="filterDateTo"
+                        wire:model.live="filterDateTo"
+                        :value="null"
+                        :options="['time' => false, 'persianDigits' => true]"
+                    />
                 </div>
                 <div>
                     <label for="filterAmountMin" class="form-label">حداقل مبلغ (ریال)</label>

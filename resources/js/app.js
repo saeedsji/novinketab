@@ -4,6 +4,8 @@ import Swal from 'sweetalert2';
 import toastr from 'toastr';
 import 'toastr/build/toastr.min.css';
 import './alpine-ui-cdn.min.js'
+import '@majidh1/jalalidatepicker'
+
 
 window.addEventListener('toast', function (event) {
     const Toast = Swal.mixin({

@@ -8,17 +8,26 @@
             </div>
         </div>
 
-        <div class="bg-white p-4 rounded-lg shadow-sm mb-8">
+        {{-- Date Filters --}}
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="startDate" class="block text-sm font-medium text-gray-700">از تاریخ</label>
-                    <input type="date" wire:model.live="startDate" id="startDate"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">از تاریخ</label>
+                    <x-forms.persian-date-picker
+                        name="startDate"
+                        wire:model.live="startDate"
+                        :value="null"
+                        :options="['time' => false, 'persianDigits' => true]"
+                    />
                 </div>
                 <div>
-                    <label for="endDate" class="block text-sm font-medium text-gray-700">تا تاریخ</label>
-                    <input type="date" wire:model.live="endDate" id="endDate"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">تا تاریخ</label>
+                    <x-forms.persian-date-picker
+                        name="endDate"
+                        wire:model.live="endDate"
+                        :value="null"
+                        :options="['time' => false, 'persianDigits' => true]"
+                    />
                 </div>
             </div>
         </div>

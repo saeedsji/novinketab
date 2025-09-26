@@ -27,8 +27,8 @@
             <dd class="mt-1 text-3xl font-semibold tracking-tight text-text-main">{{ number_format($stats['published_books']) }}</dd>
         </div>
         <div class="card p-4">
-            <dt class="truncate text-sm font-medium text-text-muted">پیش‌نویس</dt>
-            <dd class="mt-1 text-3xl font-semibold tracking-tight text-text-main">{{ number_format($stats['draft_books']) }}</dd>
+            <dt class="truncate text-sm font-medium text-text-muted">تولید مشارکتی</dt>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight text-text-main">{{ number_format($stats['shared_books']) }}</dd>
         </div>
         <div class="card p-4">
             <dt class="truncate text-sm font-medium text-text-muted">لغو شده</dt>
@@ -152,16 +152,6 @@
                     </select>
                 </div>
                 <div>
-                    <label for="filterListenerType" class="form-label">نوع مخاطب</label>
-                    <select wire:model.live="filterListenerType" id="filterListenerType"
-                            class="form-input form-select mt-1">
-                        <option value="">همه</option>
-                        @foreach($listenerTypes as $type)
-                            <option value="{{ $type->value }}">{{ $type->pName() }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
                     <label for="filterGender" class="form-label">مناسب برای جنسیت</label>
                     <select wire:model.live="filterGender" id="filterGender" class="form-input form-select mt-1">
                         <option value="">همه</option>
@@ -171,15 +161,26 @@
                     </select>
                 </div>
                 <div>
-                    <label for="filterPublishDateFrom" class="form-label">تاریخ انتشار از</label>
-                    <input type="date" wire:model.live="filterPublishDateFrom" id="filterPublishDateFrom"
-                           class="form-input mt-1">
+                    <div>
+                        <label class="block mb-1">از تاریخ انتشار </label>
+                        <x-forms.persian-date-picker
+                            name="filterPublishDateFrom"
+                            wire:model.live="filterPublishDateFrom"
+                            :value="null"
+                            :options="['time' => false, 'persianDigits' => true]"
+                        />
+                    </div>
                 </div>
                 <div>
-                    <label for="filterPublishDateTo" class="form-label">تاریخ انتشار تا</label>
-                    <input type="date" wire:model.live="filterPublishDateTo" id="filterPublishDateTo"
-                           class="form-input mt-1">
+                    <label class="block mb-1">تا تاریخ انتشار </label>
+                    <x-forms.persian-date-picker
+                        name="filterPublishDateTo"
+                        wire:model.live="filterPublishDateTo"
+                        :value="null"
+                        :options="['time' => false, 'persianDigits' => true]"
+                    />
                 </div>
+
 
 
                 {{-- Tags Filter (NEW) --}}
@@ -197,11 +198,13 @@
     </details>
 
     {{-- Table --}}
-    <div class="mt-8 flex flex-col">
+    <div class="mt-8 flex flex-col" dir="rtl">
         <div class="table-container">
             <table class="table-main">
                 <thead class="table-header">
                 <tr>
+                    {{-- ستون برای دکمه باز/بسته کردن --}}
+                    <th class="table-header-cell w-12 text-center"><span class="sr-only">جزئیات</span></th>
                     <th class="table-header-cell">
                         <x-ui.sortable column="title" :$sortCol :$sortAsc>کتاب</x-ui.sortable>
                     </th>
@@ -211,47 +214,228 @@
                     <th class="table-header-cell">
                         <x-ui.sortable column="status" :$sortCol :$sortAsc>وضعیت</x-ui.sortable>
                     </th>
-                    <th class="relative py-3.5 pl-4 pr-3 sm:pr-6"><span class="sr-only">عملیات</span></th>
+                    <th class="table-header-cell">
+                        <x-ui.sortable column="publish_date" :$sortCol :$sortAsc>تاریخ انتشار</x-ui.sortable>
+                    </th>
+                    <th class="table-header-cell text-center">عملیات</th>
                 </tr>
                 </thead>
-                <tbody class="table-body">
+                <tbody class="divide-y divide-gray-200">
                 @forelse ($books as $book)
-                    <tr wire:key="book-{{ $book->id }}" class="table-row">
-                        <td class="table-cell">
-                            <div class="font-medium text-text-main">{{ $book->title }}</div>
-                            <div class="text-text-muted font-mono text-xs">{{ $book->financial_code }}</div>
+                    {{-- ردیف اصلی اطلاعات --}}
+                    <tr wire:key="book-main-{{ $book->id }}">
+                        <td class="w-16 py-4 pr-4 pl-3 text-center sm:pr-6">
+                            <button
+                                wire:click="toggleExpand({{ $book->id }})"
+                                type="button"
+                                class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-400 transition hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                title="نمایش جزئیات بیشتر">
+
+                                <svg
+                                    class="h-5 w-5 transition-transform duration-300 ease-in-out @if($expandedBookId === $book->id) rotate-180 @endif"
+                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+
+                            </button>
                         </td>
-                        <td class="table-cell-muted">{{ $book->category->name ?? '—' }}</td>
-                        <td class="table-cell-muted text-xs">{{ $book->authors->pluck('name')->join(', ') }}</td>
-                        <td class="table-cell-muted font-mono">
-                            @if($book->latestPrice)
-                                {{ number_format($book->latestPrice->price)}}
-                            @else
-                                -
-                            @endif
+                        <td class="whitespace-nowrap py-4 px-3 text-sm">
+                            <div class="font-medium text-gray-900">{{ $book->title }}</div>
+                            <div class="text-gray-500 font-mono text-xs">{{ $book->financial_code }}</div>
                         </td>
-                        <td class="table-cell-muted">{!! $book->status->badge() !!}</td>
-                        <td class="table-cell text-center">
+                        <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{{ $book->category->name ?? '—' }}</td>
+                        <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{{ $book->authors->pluck('name')->join(', ') ?: '—' }}</td>
+                        <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500 font-mono">
+                            {{ $book->latestPrice ? number_format($book->latestPrice->price) : '-' }}
+                        </td>
+                        <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{!! $book->status->badge() !!}</td>
+                        <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{{ $book->publish_date() }}</td>
+                        <td class="relative whitespace-nowrap py-4 pl-4 pr-3 text-center text-sm font-medium sm:pl-6">
                             <div class="flex items-center justify-center gap-x-4">
-                                <button wire:click="openPriceModal({{ $book->id }})" class="btn-link-secondary"
-                                        title="مدیریت قیمت">
+                                <button wire:click="openPriceModal({{ $book->id }})"
+                                        class="text-indigo-600 hover:text-indigo-900" title="مدیریت قیمت">
                                     <x-icons.dollar class="h-5 w-5"/>
                                 </button>
-                                <a href="{{ route('book.edit', ['book' => $book->id]) }}" class="btn-link"
-                                   title="ویرایش">
+                                <a href="{{ route('book.edit', ['book' => $book->id]) }}"
+                                   class="text-indigo-600 hover:text-indigo-900" title="ویرایش">
                                     <x-icons.edit class="h-5 w-5"/>
                                 </a>
                                 <button wire:click="deleteBook({{ $book->id }})"
-                                        wire:confirm="آیا از حذف دائمی این کتاب اطمینان دارید؟" class="btn-link-danger"
-                                        title="حذف">
+                                        wire:confirm="آیا از حذف دائمی این کتاب اطمینان دارید؟"
+                                        class="text-red-600 hover:text-red-900" title="حذف">
                                     <x-icons.trash-2 class="h-5 w-5"/>
                                 </button>
                             </div>
                         </td>
                     </tr>
+
+                    {{-- ردیف جزئیات (نسخه بهبود یافته) --}}
+                    @if ($expandedBookId === $book->id)
+                        <tr wire:key="book-details-{{ $book->id }}" class="bg-white">
+                            <td colspan="8" class="p-4 sm:p-6">
+                                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                                    {{-- بخش اول: اطلاعات مالی و مشخصات اصلی --}}
+                                    <div class="lg:col-span-2 space-y-6">
+                                        {{-- کارت اطلاعات مالی --}}
+                                        <div class="p-4 bg-white border border-gray-200 rounded-lg">
+                                            <h3 class="mb-4 text-base font-semibold text-gray-800 border-b pb-2">
+                                                اطلاعات مالی
+                                            </h3>
+                                            <dl class="grid grid-cols-1 sm:grid-cols-4 gap-x-6 gap-y-5">
+                                                <div>
+                                                    <dt class="text-sm font-medium text-gray-500">قیمت چاپی</dt>
+                                                    <dd class="mt-1 text-sm text-gray-900">{{ $book->print_price ? number_format($book->print_price) . ' ریال' : '—' }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-sm font-medium text-gray-500">قیمت پیشنهادی</dt>
+                                                    <dd class="mt-1 text-sm text-gray-900">{{ $book->suggested_price ? number_format($book->suggested_price) . ' ریال' : '—' }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-sm font-medium text-gray-500">نقطه سر به سر</dt>
+                                                    <dd class="mt-1 text-sm text-gray-900">{{ $book->breakeven_sales_count ?? '—' }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-sm font-medium text-gray-500">حداکثر تخفیف</dt>
+                                                    <dd class="mt-1 text-sm font-semibold text-rose-600">{{ $book->max_discount ? $book->max_discount . '٪' : '—' }}</dd>
+                                                </div>
+                                            </dl>
+                                        </div>
+
+                                        {{-- کارت مشخصات کتاب --}}
+                                        <div class="p-4 bg-white border border-gray-200 rounded-lg">
+                                            <h3 class="mb-4 text-base font-semibold text-gray-800 border-b pb-2">
+                                                مشخصات
+                                            </h3>
+                                            <dl class="grid grid-cols-1 sm:grid-cols-4 gap-x-6 gap-y-5">
+                                                <div>
+                                                    <dt class="text-sm font-medium text-gray-500">مناسب جنسیت</dt>
+                                                    <dd class="mt-1 text-sm text-gray-900">{{ $book->gender_suitability->pName() ?? '—' }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-sm font-medium text-gray-500">تعداد ترک</dt>
+                                                    <dd class="mt-1 text-sm text-gray-900">{{ $book->track_count ?? '—' }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-sm font-medium text-gray-500">مدت زمان (دقیقه)</dt>
+                                                    <dd class="mt-1 text-sm text-gray-900">{{ $book->duration ?? '—' }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-sm font-medium text-gray-500">صفحات نسخه چاپی</dt>
+                                                    <dd class="mt-1 text-sm text-gray-900">{{ $book->print_pages ?? '—' }}</dd>
+                                                </div>
+                                            </dl>
+                                        </div>
+
+                                        {{-- کارت توضیحات و تگ‌ها --}}
+                                        <div class="p-4 bg-white border border-gray-200 rounded-lg space-y-4">
+
+                                            {{-- بخش توضیحات --}}
+                                            <div>
+                                                <h4 class="text-sm font-semibold text-gray-800 mb-2">توضیحات</h4>
+                                                <p class=" text-sm text-gray-700 leading-relaxed">
+                                                    {{-- اگر توضیحات وجود نداشت، خط تیره نمایش داده می‌شود --}}
+                                                    {{ $book->description ?? '—' }}
+                                                </p>
+                                            </div>
+
+                                            {{-- بخش تگ‌ها --}}
+                                            <div>
+                                                <h4 class="text-sm font-semibold text-gray-800 mb-2">تگ‌ها</h4>
+                                                <div class="flex flex-wrap gap-2">
+                                                    @forelse (is_array($book->tags) ? $book->tags : [] as $tag)
+                                                        <div
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                            {{ $tag }}
+                                                        </div>
+                                                    @empty
+                                                        {{-- اگر آرایه تگ‌ها خالی بود، این بخش اجرا می‌شود --}}
+                                                        <span class="text-sm text-gray-500">—</span>
+                                                    @endforelse
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <h4 class="text-sm font-semibold text-gray-800 mb-2">عنوان در طاقچه</h4>
+                                                <p class=" text-sm text-gray-700 leading-relaxed">
+                                                    {{ $book->taghche_title ?? '—' }}
+                                                </p>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    {{-- ستون دوم: شناسه‌ها و عوامل --}}
+                                    <div class="p-4 bg-white border border-gray-200 rounded-lg">
+
+                                        {{-- بخش شناسه‌های پلتفرم  --}}
+                                        <div>
+                                            <h3 class="mb-3 text-base font-semibold text-gray-800">شناسه‌ها</h3>
+                                            @php
+                                                $platforms = [
+                                                    'فیدیبو' => 'fidibo_book_id', 'طاقچه' => 'taghcheh_book_id',
+                                                    'نوار' => 'navar_book_id', 'کتابراه' => 'ketabrah_book_id',
+                                                ];
+                                            @endphp
+                                            {{-- با space-y-4 فاصله بین هر آیتم را بیشتر می‌کنیم --}}
+                                            <dl class="space-y-2">
+                                                @foreach ($platforms as $name => $property)
+                                                    {{-- دیگر نیازی به div با کلاس flex نیست --}}
+                                                    <div>
+                                                        <dt class="text-sm font-medium text-gray-500">{{ $name }}</dt>
+                                                        <dd class="mt-1 text-sm text-gray-900 font-mono tracking-wider">
+                                                            {{ $book->{$property} ?? '—' }}
+                                                        </dd>
+                                                    </div>
+                                                @endforeach
+                                            </dl>
+                                        </div>
+
+                                        {{-- جداکننده --}}
+                                        <hr class="my-4">
+
+                                        {{-- بخش عوامل --}}
+                                        <div>
+                                            <h3 class="mb-4 text-base font-semibold text-gray-800">عوامل</h3>
+                                            @php
+                                                // فیلتر کردن عواملی که خالی نیستند
+                                                $contributors = collect([
+                                                    'مترجم(ها)' => $book->translators, 'گوینده(ها)' => $book->narrators,
+                                                    'آهنگساز(ها)' => $book->composers, 'تدوینگر(ها)' => $book->editors,
+                                                    'ناشر(ها)' => $book->publishers,
+                                                ])->filter(fn($people) => $people->isNotEmpty());
+                                            @endphp
+
+                                            <div class="space-y-3">
+                                                @forelse ($contributors as $role => $people)
+                                                    <div>
+                                                        <h4 class="text-sm font-medium text-gray-500">{{ $role }}</h4>
+                                                        <div class="flex flex-wrap gap-2 mt-1">
+                                                            @foreach ($people as $person)
+                                                                <div
+                                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
+                                                                    {{ $person->name }}
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                @empty
+                                                    <span class="text-sm text-gray-500">هیچ عاملی ثبت نشده است.</span>
+                                                @endforelse
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
                 @empty
-                    <tr class="table-row">
-                        <td class="table-cell-muted py-12 text-center" colspan="6">هیچ کتابی یافت نشد.</td>
+                    <tr>
+                        <td class="py-12 text-center text-gray-500" colspan="8">هیچ کتابی یافت نشد.</td>
                     </tr>
                 @endforelse
                 </tbody>

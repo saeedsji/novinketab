@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Imports\BooksImport;
 use App\Models\Author;
 use App\Models\Book;
+use App\Models\BookPrice;
 use App\Models\Category;
 use App\Models\Composer;
 use App\Models\Narrator;
@@ -26,6 +27,7 @@ class BookSeeder extends Seeder
         $this->command->info('Truncating tables...');
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         Book::truncate();
+        BookPrice::truncate();
         Category::truncate();
         Author::truncate();
         Translator::truncate();
@@ -37,11 +39,12 @@ class BookSeeder extends Seeder
         DB::table('book_narrator_pivot')->truncate();
         DB::table('book_composer_pivot')->truncate();
         DB::table('book_publisher_pivot')->truncate();
+        DB::table('book_editor_pivot')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         $this->command->info('Tables truncated successfully.');
 
         // 2. Define the path to your Excel file
-        $filePath = base_path('database/data/All Books-NK-14011028.xlsx');
+        $filePath = base_path('database/data/All Books-NK-14040626-new.xlsx');
 
         if (!file_exists($filePath)) {
             $this->command->error('Excel file not found at: ' . $filePath);

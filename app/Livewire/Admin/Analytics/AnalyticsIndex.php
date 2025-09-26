@@ -6,6 +6,7 @@ use App\Lib\Analytics\AnalyticsService;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Morilog\Jalali\Jalalian;
 
 class AnalyticsIndex extends Component
 {
@@ -17,8 +18,8 @@ class AnalyticsIndex extends Component
 
     public function mount()
     {
-        $this->endDate = Carbon::now()->toDateString();
-        $this->startDate = Carbon::now()->subDays(30)->toDateString();
+        $this->endDate = Jalalian::now()->format('Y/m/d');
+        $this->startDate = Jalalian::now()->subDays(30)->format('Y/m/d');
     }
 
     /**
@@ -54,7 +55,9 @@ class AnalyticsIndex extends Component
      */
     public function render()
     {
-        $analyticsService = new AnalyticsService($this->startDate, $this->endDate);
+        $startDateCarbon = Jalalian::fromFormat('Y/m/d', $this->startDate)->toCarbon()->startOfDay();
+        $endDateCarbon = Jalalian::fromFormat('Y/m/d', $this->endDate)->toCarbon()->endOfDay();
+        $analyticsService = new AnalyticsService($startDateCarbon, $endDateCarbon);
 
         $comprehensiveStats = $analyticsService->getComprehensiveStats();
         $recentPayments = $analyticsService->getRecentPayments(20);
@@ -74,7 +77,9 @@ class AnalyticsIndex extends Component
      */
     private function dispatchChartData(): void
     {
-        $analyticsService = new AnalyticsService($this->startDate, $this->endDate);
+        $startDateCarbon = Jalalian::fromFormat('Y/m/d', $this->startDate)->toCarbon()->startOfDay();
+        $endDateCarbon = Jalalian::fromFormat('Y/m/d', $this->endDate)->toCarbon()->endOfDay();
+        $analyticsService = new AnalyticsService($startDateCarbon,$endDateCarbon);
         $allChartData = $analyticsService->getAllChartData();
         $this->dispatch('updateAllCharts', chartsData: $allChartData);
     }

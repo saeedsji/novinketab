@@ -18,6 +18,7 @@
         "vite": "^6.2.4"
     },
     "dependencies": {
+        "@majidh1/jalalidatepicker": "^0.9.12",
         "@tailwindcss/forms": "^0.5.10",
         "chart.js": "^4.5.0",
         "sweetalert2": "^11.22.2",

@@ -12,6 +12,7 @@ use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
+use Morilog\Jalali\Jalalian;
 
 class PaymentManager extends Component
 {
@@ -40,8 +41,8 @@ class PaymentManager extends Component
     // Filter Properties
     public string $search = '';
     public string $filterPlatform = '';
-    public ?string $filterDateFrom = null;
-    public ?string $filterDateTo = null;
+    public ?string $filterDateFrom = '';
+    public ?string $filterDateTo = '';
     public string $filterAuthor = '';
     public string $filterCategory = '';
     public ?int $filterAmountMin = null;
@@ -138,6 +139,14 @@ class PaymentManager extends Component
      */
     protected function getPaymentsQuery(): Builder
     {
+        $filterDateFrom = $this->filterDateFrom
+            ? Jalalian::fromFormat('Y/m/d', $this->filterDateFrom)->toCarbon()->format('Y-m-d')
+            : null;
+
+        $filterDateTo = $this->filterDateTo
+            ? Jalalian::fromFormat('Y/m/d', $this->filterDateTo)->toCarbon()->format('Y-m-d')
+            : null;
+
         return Payment::query()
             ->with('book') // Eager load book to prevent N+1 queries
             ->when($this->search, function ($query, $search) {
@@ -150,8 +159,8 @@ class PaymentManager extends Component
                 });
             })
             ->when($this->filterPlatform, fn($query, $platform) => $query->where('sale_platform', $platform))
-            ->when($this->filterDateFrom, fn($query, $date) => $query->where('sale_date', '>=', $date))
-            ->when($this->filterDateTo, fn($query, $date) => $query->where('sale_date', '<=', $date))
+            ->when($this->filterDateFrom, fn($query) => $query->where('sale_date', '>=', $filterDateFrom))
+            ->when($this->filterDateTo, fn($query) => $query->where('sale_date', '<=', $filterDateTo))
             ->when($this->filterAmountMin, fn($query) => $query->where('amount', '>=', $this->filterAmountMin))
             ->when($this->filterAmountMax, fn($query) => $query->where('amount', '<=', $this->filterAmountMax))
             ->when($this->filterAuthor, fn($query, $authorId) => $query->whereHas('book.authors', fn($q) => $q->where('id', $authorId)))

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\Book\BookStatusEnum;
 use App\Enums\Book\GenderSuitabilityEnum;
-use App\Enums\Book\ListenerTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -23,20 +22,18 @@ class Book extends Model
     protected $fillable = [
         'financial_code',
         'title',
+        'taghche_title',
         'category_id',
         'status',
+        'gender_suitability',
         'print_price',
         'suggested_price',
         'track_count',
+        'duration',
         'print_pages',
         'breakeven_sales_count',
         'sales_platforms',
         'formats',
-        'listener_type',
-        'author_rate',
-        'narrator_rate',
-        'editor_composer_rate',
-        'translator_rate',
         'fidibo_book_id',
         'taghcheh_book_id',
         'navar_book_id',
@@ -44,10 +41,7 @@ class Book extends Model
         'max_discount',
         'description',
         'tags',
-        'based_on',
         'publish_date',
-        'awards',
-        'gender_suitability',
     ];
 
     /**
@@ -57,7 +51,6 @@ class Book extends Model
      */
     protected $casts = [
         'status' => BookStatusEnum::class,
-        'listener_type' => ListenerTypeEnum::class,
         'gender_suitability' => GenderSuitabilityEnum::class,
         'sales_platforms' => 'array', // برای ذخیره چندین پلتفرم
         'formats' => 'array',         // برای ذخیره چندین قالب
@@ -160,6 +153,13 @@ class Book extends Model
     public function updated_at()
     {
         return Jalalian::forge($this->updated_at)->format('Y/m/d (H:i:s)');
+    }
+
+    public function publish_date()
+    {
+        if (empty($this->publish_date))
+            return null;
+        return Jalalian::forge($this->publish_date)->format('Y/m/d');
     }
 
     public function payments(): HasMany
