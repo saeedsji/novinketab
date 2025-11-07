@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Book\BookRateEnum;
 use App\Enums\Book\BookStatusEnum;
 use App\Enums\Book\GenderSuitabilityEnum;
 use Illuminate\Database\Eloquent\Model;
@@ -42,6 +43,7 @@ class Book extends Model
         'description',
         'tags',
         'publish_date',
+        'rate',
     ];
 
     /**
@@ -52,6 +54,7 @@ class Book extends Model
     protected $casts = [
         'status' => BookStatusEnum::class,
         'gender_suitability' => GenderSuitabilityEnum::class,
+        'rate' => BookRateEnum::class,
         'sales_platforms' => 'array', // برای ذخیره چندین پلتفرم
         'formats' => 'array',         // برای ذخیره چندین قالب
         'tags' => 'array',

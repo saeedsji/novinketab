@@ -58,7 +58,7 @@
                         </select>
                     </div>
                     <div class="sm:col-span-6 md:col-span-3">
-                        <label for="gender_suitability" class="form-label">مناسب برای</label>
+                        <label for="gender_suitability" class="form-label">جنسیت گوینده</label>
                         <select wire:model.blur="gender_suitability" id="gender_suitability" class="form-input form-select mt-1">
                             @foreach($genderSuitabilityEnum as $gender)
                                 <option value="{{ $gender->value }}">{{ $gender->pName() }}</option>
@@ -74,6 +74,15 @@
                         <label for="taghche_title" class="form-label">عنوان کتاب در طاقچه</label>
                         <input type="text" wire:model.blur="taghche_title" id="taghche_title" class="form-input mt-1">
                         @error('taghche_title') <span class="form-error">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="sm:col-span-6 md:col-span-3">
+                        <label for="gender_suitability" class="form-label">ریت کلی</label>
+                        <select wire:model.blur="rate" id="rate" class="form-input form-select mt-1">
+                            <option value="">انتخاب نشده</option>
+                            @foreach($rateEnum as $rate)
+                                <option value="{{ $rate->value }}">{{ $rate->pName() }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </fieldset>
 

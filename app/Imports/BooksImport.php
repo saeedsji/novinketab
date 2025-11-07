@@ -51,8 +51,6 @@ class BooksImport implements ToCollection, WithStartRow
             // 2. Get Enum values for JSON fields
             $salesPlatforms = $this->getEnumValuesFromString($row[20], SalesPlatformEnum::class, '/');
             $formats = $this->getEnumValuesFromString($row[21], BookFormatEnum::class, '/');
-
-
             // 3. Create or Update Book with CORRECT column mapping
             $book = Book::updateOrCreate(
                 ['financial_code' => $row[1]],
@@ -74,6 +72,9 @@ class BooksImport implements ToCollection, WithStartRow
                     'print_price' => is_numeric($row[29]) ? $row[29] : null,
                     'suggested_price' => is_numeric($row[30]) ? $row[30] : null,
                     'description' => !empty($row[31]) ? $row[31] : null,
+                    'tags' => $row[33]
+                        ? explode('/', str_replace(' ', '', $row[33]))
+                        : null,
                 ]
             );
 
@@ -83,6 +84,7 @@ class BooksImport implements ToCollection, WithStartRow
             $this->addBookPrice($book, Jalalian::fromFormat('Y/m/d', '1399/10/01')->toCarbon()->toDateString(), $row[17]);
             $this->addBookPrice($book, Jalalian::fromFormat('Y/m/d', '1400/11/01')->toCarbon()->toDateString(), $row[18]);
             $this->addBookPrice($book, Jalalian::fromFormat('Y/m/d', '1401/04/01')->toCarbon()->toDateString(), $row[19]);
+            $this->addBookPrice($book, Jalalian::fromFormat('Y/m/d', '1404/01/01')->toCarbon()->toDateString(), $row[38]);
 
             // 4. Handle Many-to-Many Relationships
             $this->attachItems($book, $row[6], Author::class, 'authors');
@@ -174,16 +176,16 @@ class BooksImport implements ToCollection, WithStartRow
         $months = [
             'فروردین' => 1,
             'اردیبهشت' => 2,
-            'خرداد'   => 3,
-            'تیر'     => 4,
-            'مرداد'   => 5,
-            'شهریور'  => 6,
-            'مهر'     => 7,
-            'آبان'    => 8,
-            'آذر'     => 9,
-            'دی'      => 10,
-            'بهمن'    => 11,
-            'اسفند'   => 12,
+            'خرداد' => 3,
+            'تیر' => 4,
+            'مرداد' => 5,
+            'شهریور' => 6,
+            'مهر' => 7,
+            'آبان' => 8,
+            'آذر' => 9,
+            'دی' => 10,
+            'بهمن' => 11,
+            'اسفند' => 12,
         ];
 
         $input = trim($input);
@@ -198,7 +200,7 @@ class BooksImport implements ToCollection, WithStartRow
         // ماه + سال
         foreach ($months as $name => $num) {
             if (mb_strpos($input, $name) !== false) {
-                $year = (int) filter_var($input, FILTER_SANITIZE_NUMBER_INT);
+                $year = (int)filter_var($input, FILTER_SANITIZE_NUMBER_INT);
                 return Jalalian::fromFormat('Y/m/d', $year . '/' . str_pad($num, 2, '0', STR_PAD_LEFT) . '/01')
                     ->toCarbon()
                     ->format('Y-m-d'); // خروجی میلادی

@@ -44,7 +44,7 @@ class BookSeeder extends Seeder
         $this->command->info('Tables truncated successfully.');
 
         // 2. Define the path to your Excel file
-        $filePath = base_path('database/data/All Books-NK-14040626-new.xlsx');
+        $filePath = base_path('database/data/final-books-with-tags.xlsx');
 
         if (!file_exists($filePath)) {
             $this->command->error('Excel file not found at: ' . $filePath);

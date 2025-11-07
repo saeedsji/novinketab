@@ -85,7 +85,6 @@
                     </select>
                 </div>
                 <div>
-                    <div>
                         <label class="block mb-1">از تاریخ فروش </label>
                         <x-forms.persian-date-picker
                             name="filterDateFrom"
@@ -94,7 +93,6 @@
                             :options="['time' => false, 'persianDigits' => true]"
                         />
                     </div>
-                </div>
                 <div>
                     <label class="block mb-1">تا تاریخ فروش </label>
                     <x-forms.persian-date-picker
@@ -142,7 +140,7 @@
                         </td>
                         <td class="table-cell-muted">
                             <div>{{ \App\Enums\Book\SalesPlatformEnum::from($payment->sale_platform)->pName() }}</div>
-                            <div class="text-sm font-mono">شناسه: {{ $payment->platform_id }}</div>
+                            <div class="text-xs font-mono">شناسه: {{ $payment->platform_id }}</div>
                         </td>
                         <td class="table-cell-muted">{{ \Morilog\Jalali\Jalalian::forge($payment->sale_date)->format('Y/m/d H:i') }}</td>
                         <td class="table-cell font-mono">{{ number_format($payment->amount) }} <span class="text-xs">ریال</span></td>

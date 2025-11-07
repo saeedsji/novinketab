@@ -34,7 +34,8 @@ class NavarImporter implements ToCollection, WithStartRow, WithChunkReading, Wit
 
     public function collection(Collection $rows)
     {
-        foreach ($rows as $row) {
+        foreach ($rows as $index => $row) {
+            $rowNumber = $index + 1;
             try {
                 $bookNavarId = $row[3];
                 $saleDateStr = $row[4];
@@ -42,6 +43,8 @@ class NavarImporter implements ToCollection, WithStartRow, WithChunkReading, Wit
                 $publisherShare = $row[7];
                 $discountAmount = $row[8];
                 $taxAmount = $row[9];
+                $channel = $row[10];
+                $transactionType = $row[13];
                 $platformShare = $row[11];
 
                 if (is_null($bookNavarId) || is_null($saleDateStr)) {
@@ -56,7 +59,7 @@ class NavarImporter implements ToCollection, WithStartRow, WithChunkReading, Wit
                     continue;
                 }
 
-                $platformId = "{$saleDateStr}-{$bookNavarId}-{$saleAmount}-{$publisherShare}";
+                $platformId = "{$rowNumber}-{$saleDateStr}-{$bookNavarId}-{$saleAmount}-{$publisherShare}-{$channel}-{$transactionType}";
                 $saleDate = Jalalian::fromFormat('Y/m/d', $saleDateStr)->toCarbon();
 
 
@@ -81,7 +84,9 @@ class NavarImporter implements ToCollection, WithStartRow, WithChunkReading, Wit
                     $this->newRecords++;
                 }
                 else {
+                    $this->failedDetails[] = ['row' => $row->toArray(), 'error' => "updateed book id in panel: {$book->id} , id : {$platformId}"];
                     $this->updatedRecords++;
+                    continue;
                 }
             } catch (\Exception $e) {
                 $this->failedRecords++;

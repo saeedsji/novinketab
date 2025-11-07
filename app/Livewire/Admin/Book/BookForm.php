@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Book;
 
 use App\Enums\Book\BookFormatEnum;
+use App\Enums\Book\BookRateEnum;
 use App\Enums\Book\BookStatusEnum;
 use App\Enums\Book\GenderSuitabilityEnum;
 use App\Enums\Book\SalesPlatformEnum;
@@ -26,8 +27,9 @@ class BookForm extends Component
     public $title = '';
     public $taghche_title = '';
     public $category_id = null;
-    public $status = 1; // مقدار پیش‌فرض از Enum
-    public $gender_suitability = 3; // مقدار پیش‌فرض از Enum
+    public $status = 1;
+    public $gender_suitability = 3;
+    public $rate ;
     public $print_price = null;
     public $suggested_price = null;
     public $track_count = null;
@@ -62,6 +64,7 @@ class BookForm extends Component
             'category_id' => 'required|exists:categories,id',
             'status' => 'required',
             'gender_suitability' => 'required',
+            'rate' => 'nullable',
             'selectedAuthors' => 'required|array|min:1',
 
             // Nullable Fields
@@ -125,6 +128,7 @@ class BookForm extends Component
             'category_id' => $this->category_id,
             'status' => $this->status,
             'gender_suitability' => $this->gender_suitability,
+            'rate' => $this->rate,
             'print_price' => $this->print_price,
             'suggested_price' => $this->suggested_price,
             'track_count' => $this->track_count,
@@ -198,6 +202,7 @@ class BookForm extends Component
             'editors' => Editor::query()->orderBy('name')->get(), // اضافه شد
             'bookStatuses' => BookStatusEnum::cases(),
             'genderSuitabilityEnum' => GenderSuitabilityEnum::cases(),
+            'rateEnum' => BookRateEnum::cases(),
             'salesPlatformsEnum' => SalesPlatformEnum::cases(),
             'bookFormatsEnum' => BookFormatEnum::cases(),
         ]);

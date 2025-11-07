@@ -41,12 +41,12 @@
         <summary class="p-4 cursor-pointer flex justify-between items-center">
             <h3 class="text-lg font-medium text-text-main">فیلترهای پیشرفته</h3>
             <div class="flex items-center gap-x-4">
-                <button type="button" wire:click="resetFilters" class="btn-link-secondary text-sm">حذف فیلترها</button>
+                <button type="button" wire:click="resetFilters" class="btn btn-outline text-sm">حذف فیلترها</button>
                 <x-icons.chevron-down class="h-5 w-5 transition-transform duration-200 details-open:rotate-180"/>
             </div>
         </summary>
         <div class="border-t border-border-main p-4">
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {{-- Search --}}
                 <div class="lg:col-span-2">
                     <label for="search" class="form-label">جستجو (عنوان یا کد مالی)</label>
@@ -65,9 +65,21 @@
                     </select>
                 </div>
 
+                <div>
+                    <label for="filterFormat" class="form-label">قالب</label>
+                    <select wire:model.live="filterFormat" id="filterFormat" class="form-input form-select mt-1">
+                        <option value="">همه</option>
+                        @foreach($bookFormats as $format)
+                            <option value="{{ $format->value }}">{{ $format->pName() }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 {{-- Category --}}
                 <div>
                     <label for="filterCategory" class="form-label">دسته‌بندی</label>
+                    {{-- (جدید) Search input for category --}}
+                    <input type="text" wire:model.live.debounce.300ms="categorySearch" placeholder="جستجوی دسته‌بندی..." class="form-input mt-1 text-sm" />
                     <select wire:model.live="filterCategory" id="filterCategory" class="form-input form-select mt-1">
                         <option value="">همه</option>
                         @foreach($categories as $category)
@@ -79,6 +91,8 @@
                 {{-- Author --}}
                 <div>
                     <label for="filterAuthor" class="form-label">نویسنده</label>
+                    {{-- (جدید) Search input for author --}}
+                    <input type="text" wire:model.live.debounce.300ms="authorSearch" placeholder="جستجوی نویسنده..." class="form-input mt-1 text-sm" />
                     <select wire:model.live="filterAuthor" id="filterAuthor" class="form-input form-select mt-1">
                         <option value="">همه</option>
                         @foreach($authors as $author)
@@ -90,6 +104,8 @@
                 {{-- Translator --}}
                 <div>
                     <label for="filterTranslator" class="form-label">مترجم</label>
+                    {{-- (جدید) Search input for translator --}}
+                    <input type="text" wire:model.live.debounce.300ms="translatorSearch" placeholder="جستجوی مترجم..." class="form-input mt-1 text-sm" />
                     <select wire:model.live="filterTranslator" id="filterTranslator"
                             class="form-input form-select mt-1">
                         <option value="">همه</option>
@@ -102,6 +118,8 @@
                 {{-- Other filters... --}}
                 <div>
                     <label for="filterNarrator" class="form-label">گوینده</label>
+                    {{-- (جدید) Search input for narrator --}}
+                    <input type="text" wire:model.live.debounce.300ms="narratorSearch" placeholder="جستجوی گوینده..." class="form-input mt-1 text-sm" />
                     <select wire:model.live="filterNarrator" id="filterNarrator" class="form-input form-select mt-1">
                         <option value="">همه</option>
                         @foreach($narrators as $narrator)
@@ -111,6 +129,8 @@
                 </div>
                 <div>
                     <label for="filterComposer" class="form-label">آهنگساز</label>
+                    {{-- (جدید) Search input for composer --}}
+                    <input type="text" wire:model.live.debounce.300ms="composerSearch" placeholder="جستجوی آهنگساز..." class="form-input mt-1 text-sm" />
                     <select wire:model.live="filterComposer" id="filterComposer" class="form-input form-select mt-1">
                         <option value="">همه</option>
                         @foreach($composers as $composer)
@@ -120,6 +140,8 @@
                 </div>
                 <div>
                     <label for="filterPublisher" class="form-label">ناشر</label>
+                    {{-- (جدید) Search input for publisher --}}
+                    <input type="text" wire:model.live.debounce.300ms="publisherSearch" placeholder="جستجوی ناشر..." class="form-input mt-1 text-sm" />
                     <select wire:model.live="filterPublisher" id="filterPublisher" class="form-input form-select mt-1">
                         <option value="">همه</option>
                         @foreach($publishers as $publisher)
@@ -133,17 +155,9 @@
                         @endforeach
                     </select>
                 </div>
+
                 <div>
-                    <label for="filterFormat" class="form-label">قالب</label>
-                    <select wire:model.live="filterFormat" id="filterFormat" class="form-input form-select mt-1">
-                        <option value="">همه</option>
-                        @foreach($bookFormats as $format)
-                            <option value="{{ $format->value }}">{{ $format->pName() }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label for="filterPlatform" class="form-label">پلتفرم فروش</label>
+                    <label for="filterPlatform" class="form-label">پلتفرم فروش (کتاب)</label>
                     <select wire:model.live="filterPlatform" id="filterPlatform" class="form-input form-select mt-1">
                         <option value="">همه</option>
                         @foreach($salesPlatforms as $platform)
@@ -152,7 +166,7 @@
                     </select>
                 </div>
                 <div>
-                    <label for="filterGender" class="form-label">مناسب برای جنسیت</label>
+                    <label for="filterGender" class="form-label">جنسیت گوینده</label>
                     <select wire:model.live="filterGender" id="filterGender" class="form-input form-select mt-1">
                         <option value="">همه</option>
                         @foreach($genderSuitabilities as $gender)
@@ -161,15 +175,22 @@
                     </select>
                 </div>
                 <div>
-                    <div>
-                        <label class="block mb-1">از تاریخ انتشار </label>
-                        <x-forms.persian-date-picker
-                            name="filterPublishDateFrom"
-                            wire:model.live="filterPublishDateFrom"
-                            :value="null"
-                            :options="['time' => false, 'persianDigits' => true]"
-                        />
-                    </div>
+                    <label for="filterRate" class="form-label">ریت کلی</label>
+                    <select wire:model.live="filterRate" id="filterRate" class="form-input form-select mt-1">
+                        <option value="">همه</option>
+                        @foreach($rates as $rate)
+                            <option value="{{ $rate->value }}">{{ $rate->pName() }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block mb-1">از تاریخ انتشار </label>
+                    <x-forms.persian-date-picker
+                        name="filterPublishDateFrom"
+                        wire:model.live="filterPublishDateFrom"
+                        :value="null"
+                        :options="['time' => false, 'persianDigits' => true]"
+                    />
                 </div>
                 <div>
                     <label class="block mb-1">تا تاریخ انتشار </label>
@@ -181,11 +202,60 @@
                     />
                 </div>
 
+                {{-- (جدید) Payment Filters --}}
+                <hr class="lg:col-span-4 my-2 border-border-main" />
 
+                {{-- ردیف اول فیلترهای مالی --}}
+                <div>
+                    <label for="filterMinSalesCount" class="form-label">حداقل تعداد فروش</label>
+                    <input type="number" wire:model.live.debounce.300ms="filterMinSalesCount" id="filterMinSalesCount" class="form-input mt-1" placeholder="مثلا: 100">
+                </div>
 
-                {{-- Tags Filter (NEW) --}}
+                <div>
+                    <label for="filterMinSalesAmount" class="form-label">حداقل مبلغ فروش (ریال)</label>
+                    {{-- (اصلاح) خطای تایپی class_ به class تبدیل شد --}}
+                    <input type="number" wire:model.live.debounce.300ms="filterMinSalesAmount" id="filterMinSalesAmount" class="form-input mt-1" placeholder="مثلا: 1000000">
+                </div>
+
+                <div>
+                    <label for="filterPaymentPlatform" class="form-label">پلتفرم پرداخت</label>
+                    <select wire:model.live="filterPaymentPlatform" id="filterPaymentPlatform" class="form-input form-select mt-1">
+                        <option value="">همه</option>
+                        @foreach($salesPlatforms as $platform)
+                            <option value="{{ $platform->value }}">{{ $platform->pName() }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- (جدید) سلول خالی برای تراز کردن گرید 4 ستونی --}}
+                <div></div>
+
+                {{-- ردیف دوم فیلترهای مالی و تگ‌ها --}}
+                <div>
+                    <label class="block mb-1">از تاریخ پرداخت </label>
+                    <x-forms.persian-date-picker
+                        name="filterPaymentDateFrom"
+                        wire:model.live="filterPaymentDateFrom"
+                        :value="null"
+                        :options="['time' => false, 'persianDigits' => true]"
+                    />
+                </div>
+
+                <div>
+                    <label class="block mb-1">تا تاریخ پرداخت </label>
+                    <x-forms.persian-date-picker
+                        name="filterPaymentDateTo"
+                        wire:model.live="filterPaymentDateTo"
+                        :value="null"
+                        :options="['time' => false, 'persianDigits' => true]"
+                    />
+                </div>
+
+                {{-- فیلتر تگ‌ها (اکنون در کنار فیلترهای تاریخ قرار می‌گیرد) --}}
                 <div class="lg:col-span-2">
                     <label for="filterTags" class="form-label">تگ‌ها (برای انتخاب چند مورد Ctrl را نگه دارید)</label>
+                    {{-- (جدید) Search input for tags --}}
+                    <input type="text" wire:model.live.debounce.300ms="tagSearch" placeholder="جستجوی تگ..." class="form-input mt-1 text-sm" />
                     <select wire:model.live="filterTags" id="filterTags" class="form-input form-select mt-1" multiple
                             size="5">
                         @foreach($allTags as $tag)
@@ -211,6 +281,15 @@
                     <th class="table-header-cell">دسته‌بندی</th>
                     <th class="table-header-cell">نویسنده(ها)</th>
                     <th class="table-header-cell">آخرین قیمت (ریال)</th>
+
+                    {{-- (جدید) Sales Columns --}}
+                    <th class="table-header-cell">
+                        <x-ui.sortable column="sales_count" :$sortCol :$sortAsc>تعداد فروش</x-ui.sortable>
+                    </th>
+                    <th class="table-header-cell">
+                        <x-ui.sortable column="total_amount" :$sortCol :$sortAsc>مبلغ فروش (ریال)</x-ui.sortable>
+                    </th>
+
                     <th class="table-header-cell">
                         <x-ui.sortable column="status" :$sortCol :$sortAsc>وضعیت</x-ui.sortable>
                     </th>
@@ -242,14 +321,19 @@
                             </button>
                         </td>
                         <td class="whitespace-nowrap py-4 px-3 text-sm">
-                            <div class="font-medium text-gray-900">{{ $book->title }}</div>
+                            <div class="font-medium text-gray-900" title="{{ $book->title }}">{{ \Illuminate\Support\Str::limit($book->title,40) }}</div>
                             <div class="text-gray-500 font-mono text-xs">{{ $book->financial_code }}</div>
                         </td>
-                        <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{{ $book->category->name ?? '—' }}</td>
-                        <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{{ $book->authors->pluck('name')->join(', ') ?: '—' }}</td>
+                        <td class=" py-4 px-3 text-sm text-gray-500">{{ $book->category->name ?? '—' }}</td>
+                        <td class=" py-4 px-3 text-sm text-gray-500">{{ $book->authors->pluck('name')->join(', ') ?: '—' }}</td>
                         <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500 font-mono">
                             {{ $book->latestPrice ? number_format($book->latestPrice->price) : '-' }}
                         </td>
+
+                        {{-- (جدید) Sales Data Cells --}}
+                        <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500 font-mono">{{ number_format($book->sales_count) }}</td>
+                        <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500 font-mono">{{ number_format($book->total_amount) }}</td>
+
                         <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{!! $book->status->badge() !!}</td>
                         <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{{ $book->publish_date() }}</td>
                         <td class="relative whitespace-nowrap py-4 pl-4 pr-3 text-center text-sm font-medium sm:pl-6">
@@ -274,7 +358,8 @@
                     {{-- ردیف جزئیات (نسخه بهبود یافته) --}}
                     @if ($expandedBookId === $book->id)
                         <tr wire:key="book-details-{{ $book->id }}" class="bg-white">
-                            <td colspan="8" class="p-4 sm:p-6">
+                            {{-- (تغییر) Colspan updated --}}
+                            <td colspan="10" class="p-4 sm:p-6">
                                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                                     {{-- بخش اول: اطلاعات مالی و مشخصات اصلی --}}
@@ -288,6 +373,10 @@
                                                 <div>
                                                     <dt class="text-sm font-medium text-gray-500">قیمت چاپی</dt>
                                                     <dd class="mt-1 text-sm text-gray-900">{{ $book->print_price ? number_format($book->print_price) . ' ریال' : '—' }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-sm font-medium text-gray-500">ریت کلی </dt>
+                                                    <dd class="mt-1 text-sm text-gray-900">{{ $book->rate ?? '—'}}</dd>
                                                 </div>
                                                 <div>
                                                     <dt class="text-sm font-medium text-gray-500">قیمت پیشنهادی</dt>
@@ -311,7 +400,7 @@
                                             </h3>
                                             <dl class="grid grid-cols-1 sm:grid-cols-4 gap-x-6 gap-y-5">
                                                 <div>
-                                                    <dt class="text-sm font-medium text-gray-500">مناسب جنسیت</dt>
+                                                    <dt class="text-sm font-medium text-gray-500">جنسیت گوینده</dt>
                                                     <dd class="mt-1 text-sm text-gray-900">{{ $book->gender_suitability->pName() ?? '—' }}</dd>
                                                 </div>
                                                 <div>
@@ -435,7 +524,8 @@
                     @endif
                 @empty
                     <tr>
-                        <td class="py-12 text-center text-gray-500" colspan="8">هیچ کتابی یافت نشد.</td>
+                        {{-- (تغییر) Colspan updated --}}
+                        <td class="py-12 text-center text-gray-500" colspan="10">هیچ کتابی یافت نشد.</td>
                     </tr>
                 @endforelse
                 </tbody>

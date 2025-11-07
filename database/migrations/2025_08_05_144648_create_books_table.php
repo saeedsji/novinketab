@@ -53,6 +53,8 @@ return new class extends Migration
             $table->json('tags')->nullable()->comment('تگ ها');
             $table->date('publish_date')->nullable()->comment('تاریخ انتشار');
 
+            $table->tinyInteger('rate')->nullable()->unsigned()->comment('ریت کتاب');
+
             $table->timestamps();
         });
     }

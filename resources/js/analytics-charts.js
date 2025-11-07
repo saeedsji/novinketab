@@ -13,9 +13,9 @@ document.addEventListener('livewire:initialized', () => {
         const chartsToProcess = [
             { id: 'salesOverTimeChart', type: 'line', data: chartsData.salesOverTime, options: { responsive: true }, label: 'میزان فروش' },
             { id: 'salesByPlatformChart', type: 'doughnut', data: chartsData.salesByPlatform, options: { responsive: true, maintainAspectRatio: false } },
-            { id: 'topBooksByRevenueChart', type: 'bar', data: chartsData.topBooksByRevenue, options: { indexAxis: 'y', responsive: true }, label: 'درآمد' },
+            { id: 'topBooksByRevenueChart', type: 'bar', data: chartsData.topBooksByRevenue, options: { indexAxis: 'y', responsive: true }, label: 'مبلغ فروش' },
             { id: 'topBooksBySalesChart', type: 'bar', data: chartsData.topBooksBySales, options: { indexAxis: 'y', responsive: true }, label: 'تعداد فروش' },
-            { id: 'salesByCategoryChart', type: 'bar', data: chartsData.salesByCategory, options: { responsive: true }, label: 'درآمد' },
+            { id: 'salesByCategoryChart', type: 'bar', data: chartsData.salesByCategory, options: { responsive: true }, label: 'فروش' },
             { id: 'salesByGenderChart', type: 'pie', data: chartsData.salesByGender, options: { responsive: true, maintainAspectRatio: false } }
         ];
 

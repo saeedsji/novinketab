@@ -38,6 +38,13 @@
                         پرداخت ها
                     </x-panel.nav-link>
                 @endcan
+                @can('مدیریت کمپین')
+                    <x-panel.nav-link href="{{ route('campaigns.index') }}"
+                                      :active=" request()->is('admin/campaigns')">
+                        <x-icons.box/>
+                        کمپین ها
+                    </x-panel.nav-link>
+                @endcan
 
                 @can('مدیریت بخش آنالیز')
                     <x-panel.nav-link href="{{ route('analytics.index') }}"

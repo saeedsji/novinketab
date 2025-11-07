@@ -3,10 +3,10 @@
 namespace App\Livewire\Admin\Analytics;
 
 use App\Lib\Analytics\AnalyticsService;
-use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Morilog\Jalali\Jalalian;
+use App\Enums\Book\SalesPlatformEnum; // <-- این خط را اضافه کنید
 
 class AnalyticsIndex extends Component
 {
@@ -15,6 +15,10 @@ class AnalyticsIndex extends Component
     public ?string $startDate = '';
     public ?string $endDate = '';
     public bool $chartsLoaded = false; // یک فلگ برای جلوگیری از اجرای چندباره
+
+    // (جدید) فیلترهای اختیاری
+    public ?int $book_id = null;
+    public string $platform = '';
 
     public function mount()
     {
@@ -42,7 +46,8 @@ class AnalyticsIndex extends Component
      */
     public function updated($property)
     {
-        if (in_array($property, ['startDate', 'endDate'])) {
+        // (تغییر) book_id و platform به شرط اضافه شدند
+        if (in_array($property, ['startDate', 'endDate', 'book_id', 'platform'])) {
             $this->resetPage();
             // پس از تغییر تاریخ، داده‌های جدید نمودار را ارسال کن
             $this->dispatchChartData();
@@ -57,7 +62,9 @@ class AnalyticsIndex extends Component
     {
         $startDateCarbon = Jalalian::fromFormat('Y/m/d', $this->startDate)->toCarbon()->startOfDay();
         $endDateCarbon = Jalalian::fromFormat('Y/m/d', $this->endDate)->toCarbon()->endOfDay();
-        $analyticsService = new AnalyticsService($startDateCarbon, $endDateCarbon);
+
+        // (تغییر) فیلترهای جدید به سرویس ارسال می‌شوند
+        $analyticsService = new AnalyticsService($startDateCarbon, $endDateCarbon, $this->book_id, $this->platform);
 
         $comprehensiveStats = $analyticsService->getComprehensiveStats();
         $recentPayments = $analyticsService->getRecentPayments(20);
@@ -68,6 +75,7 @@ class AnalyticsIndex extends Component
             'stats' => $comprehensiveStats,
             'recentPayments' => $recentPayments,
             'topAuthors' => $topAuthors,
+            'platforms' => SalesPlatformEnum::cases(), // <-- این خط را اضافه کنید
         ]);
     }
 
@@ -79,7 +87,10 @@ class AnalyticsIndex extends Component
     {
         $startDateCarbon = Jalalian::fromFormat('Y/m/d', $this->startDate)->toCarbon()->startOfDay();
         $endDateCarbon = Jalalian::fromFormat('Y/m/d', $this->endDate)->toCarbon()->endOfDay();
-        $analyticsService = new AnalyticsService($startDateCarbon,$endDateCarbon);
+
+        // (تغییر) فیلترهای جدید به سرویس ارسال می‌شوند
+        $analyticsService = new AnalyticsService($startDateCarbon, $endDateCarbon, $this->book_id, $this->platform);
+
         $allChartData = $analyticsService->getAllChartData();
         $this->dispatch('updateAllCharts', chartsData: $allChartData);
     }

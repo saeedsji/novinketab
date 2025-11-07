@@ -16,22 +16,47 @@ class AnalyticsService
 {
     private ?Carbon $startDate;
     private ?Carbon $endDate;
+    // (جدید)
+    private ?int $bookId;
+    private ?string $platform;
 
-    public function __construct(?string $startDate, ?string $endDate)
+    public function __construct(?string $startDate, ?string $endDate, ?int $bookId = null, ?string $platform = null)
     {
         $this->startDate = $startDate ? Carbon::parse($startDate)->startOfDay() : null;
         $this->endDate = $endDate ? Carbon::parse($endDate)->endOfDay() : null;
+
+        // (جدید)
+        $this->bookId = $bookId;
+        $this->platform = $platform;
     }
 
+    // (جدید)
     /**
-     * اعمال فیلتر بازه زمانی روی کوئری
+     * یک کالبک (Closure) برای اعمال تمام فیلترها بر روی کوئری Payment
+     * این متد جایگزین applyDateFilter شده و فیلترهای جدید را هم شامل می‌شود
      */
-    private function applyDateFilter(Builder $query, string $dateColumn = 'sale_date'): Builder
+    private function getPaymentFilterCallback(): \Closure
     {
-        if ($this->startDate && $this->endDate) {
-            return $query->whereBetween($dateColumn, [$this->startDate, $this->endDate]);
-        }
-        return $query;
+        return function (Builder $query) {
+            // فیلتر تاریخ
+            if ($this->startDate && $this->endDate) {
+                // اطمینان از اینکه نام جدول درست است (مخصوصا در join ها)
+                $column = $query->from === 'payments' ? 'payments.sale_date' : 'sale_date';
+                $query->whereBetween($column, [$this->startDate, $this->endDate]);
+            }
+
+            // فیلتر کتاب
+            if ($this->bookId) {
+                $column = $query->from === 'payments' ? 'payments.book_id' : 'book_id';
+                $query->where($column, $this->bookId);
+            }
+
+            // فیلتر پلتفرم
+            if ($this->platform) {
+                $column = $query->from === 'payments' ? 'payments.sale_platform' : 'sale_platform';
+                $query->where($column, $this->platform);
+            }
+        };
     }
 
     /**
@@ -39,8 +64,7 @@ class AnalyticsService
      */
     public function getComprehensiveStats(): array
     {
-        $paymentsQuery = $this->applyDateFilter(Payment::query());
-
+        $paymentsQuery = Payment::query()->where($this->getPaymentFilterCallback());
         $stats = $paymentsQuery->select(
             DB::raw('SUM(amount) as total_revenue'),
             DB::raw('COUNT(id) as total_sales_count'),
@@ -58,7 +82,6 @@ class AnalyticsService
             'total_discount' => $stats->total_discount ?? 0,
             'total_publisher_share' => $stats->total_publisher_share ?? 0,
             'total_books' => Book::count(),
-            'total_authors' => Author::count(),
             'best_selling_book_title' => $bestSellingBook->title ?? 'N/A',
             'most_profitable_book_title' => $mostProfitableBook->title ?? 'N/A',
         ];
@@ -70,7 +93,7 @@ class AnalyticsService
      */
     public function getRecentPayments(int $limit = 10)
     {
-        return $this->applyDateFilter(Payment::query())
+        return Payment::query()->where($this->getPaymentFilterCallback())
             ->with('book:id,title')
             ->latest('sale_date')
             ->limit($limit)
@@ -90,7 +113,7 @@ class AnalyticsService
             ->join('payments', 'books.id', '=', 'payments.book_id')
             // Apply date filter on the correct table
             ->where(function ($query) {
-                $this->applyDateFilter($query, 'payments.sale_date');
+                $this->getPaymentFilterCallback()($query->from('payments'));
             })
             ->groupBy('authors.id', 'authors.name')
             ->orderByDesc('total_revenue')
@@ -115,15 +138,14 @@ class AnalyticsService
 
     private function getTopBooks(string $orderBy, int $limit)
     {
-        $dateFilterCallback = fn($q) => $this->applyDateFilter($q);
-
+        $filterCallback = $this->getPaymentFilterCallback();
         $query = Book::select('id', 'title');
 
         if ($orderBy === 'sales_count') {
-            $query->withCount(['payments as aggregate' => $dateFilterCallback])->orderByDesc('aggregate');
+            $query->withCount(['payments as aggregate' => $filterCallback])->orderByDesc('aggregate');
         }
         else { // revenue
-            $query->withSum(['payments as aggregate' => $dateFilterCallback], 'amount')->orderByDesc('aggregate');
+            $query->withSum(['payments as aggregate' => $filterCallback], 'amount')->orderByDesc('aggregate');
         }
 
         return $query->limit($limit)->get();
@@ -131,7 +153,7 @@ class AnalyticsService
 
     private function getSalesOverTimeData(): array
     {
-        $query = $this->applyDateFilter(Payment::query())
+        $query = Payment::query()->where($this->getPaymentFilterCallback())
             ->select(DB::raw('DATE(sale_date) as date'), DB::raw('SUM(amount) as total'))
             ->groupBy('date')
             ->orderBy('date', 'asc');
@@ -146,7 +168,7 @@ class AnalyticsService
     private function getSalesByPlatformData(): array
     {
         $platformMapping = [1 => 'فیدیبو', 2 => 'طاقچه', 3 => 'نوار', 4 => 'کتابراه'];
-        $data = $this->applyDateFilter(Payment::query())
+        $data = Payment::query()->where($this->getPaymentFilterCallback())
             ->select('sale_platform', DB::raw('SUM(amount) as total'))
             ->groupBy('sale_platform')->get();
 
@@ -171,7 +193,7 @@ class AnalyticsService
             ->join('books', 'categories.id', '=', 'books.category_id')
             ->join('payments', 'books.id', '=', 'payments.book_id')
             ->where(function ($q) {
-                $this->applyDateFilter($q, 'payments.sale_date');
+                $this->getPaymentFilterCallback()($q->from('payments'));
             })
             ->selectRaw('SUM(payments.amount) as total_revenue')
             ->groupBy('categories.id', 'categories.name')
@@ -187,8 +209,9 @@ class AnalyticsService
 
     private function getSalesByEnumData(string $attribute, string $enumClass): array
     {
-        $data = Book::whereHas('payments', fn($q) => $this->applyDateFilter($q))
-            ->withSum(['payments as total_revenue' => fn($q) => $this->applyDateFilter($q)], 'amount')
+        $filterCallback = $this->getPaymentFilterCallback();
+        $data = Book::whereHas('payments', $filterCallback)
+            ->withSum(['payments as total_revenue' => $filterCallback], 'amount')
             ->get()
             ->groupBy($attribute)
             ->map(fn($books) => $books->sum('total_revenue'));

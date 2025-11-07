@@ -8,6 +8,8 @@ use App\Livewire\Admin\Analytics\AnalyticsIndex;
 use App\Livewire\Admin\Author\AuthorManager;
 use App\Livewire\Admin\Book\BookForm;
 use App\Livewire\Admin\Book\BookList;
+use App\Livewire\Admin\Campaign\CampaignForm;
+use App\Livewire\Admin\Campaign\CampaignManager;
 use App\Livewire\Admin\Category\CategoryManager;
 use App\Livewire\Admin\Composer\ComposerManager;
 use App\Livewire\Admin\Dashboard\DashboardIndex;
@@ -87,6 +89,11 @@ Route::prefix('admin')->middleware([AdminAuth::class])->group(function () {
 
     Route::middleware('permission:مدیریت بخش آنالیز')->group(function () {
         Route::get('analytics', AnalyTicsIndex::class)->name('analytics.index');
+    });
+    Route::middleware('permission:مدیریت کمپین')->group(function () {
+        Route::get('/campaigns', CampaignManager::class)->name('campaigns.index');
+        Route::get('/campaigns/create', CampaignForm::class)->name('campaigns.create');
+        Route::get('/campaigns/{campaign}/edit', CampaignForm::class)->name('campaigns.edit');
     });
 
 
