@@ -69,13 +69,17 @@ class AnalyticsIndex extends Component
         $comprehensiveStats = $analyticsService->getComprehensiveStats();
         $recentPayments = $analyticsService->getRecentPayments(20);
         $topAuthors = $analyticsService->getTopAuthors(20);
+        $topPublishers = $analyticsService->getTopPublishers(20);
+        $topNarrators = $analyticsService->getTopNarrators(20);
 
 
         return view('livewire.admin.analytics.analytics-index', [
             'stats' => $comprehensiveStats,
             'recentPayments' => $recentPayments,
             'topAuthors' => $topAuthors,
-            'platforms' => SalesPlatformEnum::cases(), // <-- این خط را اضافه کنید
+            'topPublishers' => $topPublishers,
+            'topNarrators' => $topNarrators,
+            'platforms' => SalesPlatformEnum::cases(),
         ]);
     }
 

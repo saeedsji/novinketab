@@ -11,6 +11,8 @@ use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use App\Models\Publisher;
+use App\Models\Narrator;
 
 class AnalyticsService
 {
@@ -116,6 +118,79 @@ class AnalyticsService
                 $this->getPaymentFilterCallback()($query->from('payments'));
             })
             ->groupBy('authors.id', 'authors.name')
+            ->orderByDesc('total_revenue')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * واکشی برترین ناشران بر اساس درآمد
+     */
+    public function getTopPublishers(int $limit = 5)
+    {
+        $query = Publisher::query()
+            ->select(
+                'publishers.id',
+                'publishers.name',
+                DB::raw('SUM(payments.amount) as total_revenue')
+            )
+            ->join('book_publisher_pivot', 'publishers.id', '=', 'book_publisher_pivot.publisher_id')
+            ->join('books', 'book_publisher_pivot.book_id', '=', 'books.id')
+            ->join('payments', 'books.id', '=', 'payments.book_id');
+
+        // فیلتر تاریخ
+        if ($this->startDate && $this->endDate) {
+            $query->whereBetween('payments.sale_date', [$this->startDate, $this->endDate]);
+        }
+
+        // فیلتر کتاب
+        if ($this->bookId) {
+            $query->where('payments.book_id', $this->bookId);
+        }
+
+        // فیلتر پلتفرم
+        if ($this->platform) {
+            $query->where('payments.sale_platform', $this->platform);
+        }
+
+        return $query
+            ->groupBy('publishers.id', 'publishers.name')
+            ->orderByDesc('total_revenue')
+            ->limit($limit)
+            ->get();
+    }
+    /**
+     * واکشی برترین گویندگان بر اساس درآمد
+     */
+    public function getTopNarrators(int $limit = 5)
+    {
+        $query = Narrator::query()
+            ->select(
+                'narrators.id',
+                'narrators.name',
+                DB::raw('SUM(payments.amount) as total_revenue')
+            )
+            ->join('book_narrator_pivot', 'narrators.id', '=', 'book_narrator_pivot.narrator_id')
+            ->join('books', 'book_narrator_pivot.book_id', '=', 'books.id')
+            ->join('payments', 'books.id', '=', 'payments.book_id');
+
+        // فیلتر تاریخ
+        if ($this->startDate && $this->endDate) {
+            $query->whereBetween('payments.sale_date', [$this->startDate, $this->endDate]);
+        }
+
+        // فیلتر کتاب
+        if ($this->bookId) {
+            $query->where('payments.book_id', $this->bookId);
+        }
+
+        // فیلتر پلتفرم
+        if ($this->platform) {
+            $query->where('payments.sale_platform', $this->platform);
+        }
+
+        return $query
+            ->groupBy('narrators.id', 'narrators.name')
             ->orderByDesc('total_revenue')
             ->limit($limit)
             ->get();

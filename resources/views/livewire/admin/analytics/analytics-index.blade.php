@@ -120,62 +120,207 @@
         </div>
 
 
+        {{-- باکس‌های برترین‌ها: نویسندگان / ناشران / گویندگان --}}
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
-            <div class="bg-white rounded-lg shadow-sm overflow-hidden xl:col-span-1">
-                <h3 class="p-4 text-lg font-semibold text-gray-800 border-b">نویسندگان برتر</h3>
-                <table class="min-w-full">
-                    <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">نام</th>
-                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">فروش کل</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @forelse($topAuthors as $author)
-                        <tr class="border-b">
-                            <td class="px-4 py-3 text-sm text-gray-800">{{ $author->name }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-500">{{ number_format($author->total_revenue) }}
-                                ریال
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="2" class="p-4 text-center text-gray-500">داده‌ای یافت نشد.</td>
-                        </tr>
-                    @endforelse
-                    </tbody>
-                </table>
-            </div>
 
-            <div class="bg-white rounded-lg shadow-sm overflow-hidden xl:col-span-2">
-                <h3 class="p-4 text-lg font-semibold text-gray-800 border-b">فروش‌های اخیر</h3>
+            {{-- نویسندگان برتر --}}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+                <div class="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
+                    <h3 class="text-sm font-semibold text-gray-800">نویسندگان برتر</h3>
+                    <span class="text-[11px] text-gray-400">بر اساس مجموع مبلغ فروش</span>
+                </div>
+
                 <div class="overflow-x-auto">
-                    <table class="min-w-full">
+                    <table class="min-w-full text-sm">
                         <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">کتاب</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">پلتفرم</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">تاریخ فروش</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">مبلغ</th>
+                            <th class="px-3 py-2 text-center text-[11px] font-medium text-gray-500">رتبه</th>
+                            <th class="px-3 py-2 text-right text-[11px] font-medium text-gray-500">نام</th>
+                            <th class="px-3 py-2 text-right text-[11px] font-medium text-gray-500">فروش کل (ریال)</th>
                         </tr>
                         </thead>
-                        <tbody>
-                        @forelse($recentPayments as $payment)
-                            <tr class="border-b">
-                                <td class="px-4 py-3 text-sm text-gray-800">{{ $payment->book->title }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-800">{{ $payment->sale_platform ? \App\Enums\Book\SalesPlatformEnum::from($payment->sale_platform)->pName() : '-'}}</td>
-                                <td class="px-4 py-3 text-sm text-gray-500">{{ \Morilog\Jalali\Jalalian::forge($payment->sale_date)->format('Y/m/d H:i') }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-500">{{ number_format($payment->amount) }}ریال
+                        <tbody class="divide-y divide-gray-100">
+                        @forelse($topAuthors as $author)
+                            <tr class="hover:bg-gray-50/80">
+                                {{-- رتبه --}}
+                                <td class="px-3 py-2 text-center align-middle">
+                            <span
+                                class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold
+                                {{ $loop->iteration === 1 ? 'bg-amber-100 text-amber-700' : '' }}
+                                {{ $loop->iteration === 2 ? 'bg-gray-100 text-gray-700' : '' }}
+                                {{ $loop->iteration === 3 ? 'bg-orange-50 text-orange-700' : '' }}
+                                {{ $loop->iteration > 3 ? 'bg-gray-50 text-gray-500' : '' }}"
+                            >
+                                {{ $loop->iteration }}
+                            </span>
+                                </td>
+
+                                {{-- نام --}}
+                                <td class="px-3 py-2 text-sm text-gray-800 truncate">
+                                    {{ $author->name }}
+                                </td>
+
+                                {{-- فروش کل --}}
+                                <td class="px-3 py-2 text-xs text-gray-600 whitespace-nowrap">
+                                    {{ number_format($author->total_revenue) }}
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="p-4 text-center text-gray-500">داده‌ای یافت نشد.</td>
+                                <td colspan="3" class="p-4 text-center text-gray-500 text-sm">
+                                    داده‌ای یافت نشد.
+                                </td>
                             </tr>
                         @endforelse
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            {{-- ناشران برتر --}}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+                <div class="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
+                    <h3 class="text-sm font-semibold text-gray-800">ناشران برتر</h3>
+                    <span class="text-[11px] text-gray-400">بر اساس مجموع مبلغ فروش</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-3 py-2 text-center text-[11px] font-medium text-gray-500">رتبه</th>
+                            <th class="px-3 py-2 text-right text-[11px] font-medium text-gray-500">نام</th>
+                            <th class="px-3 py-2 text-right text-[11px] font-medium text-gray-500">فروش کل (ریال)</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                        @forelse($topPublishers as $publisher)
+                            <tr class="hover:bg-gray-50/80">
+                                {{-- رتبه --}}
+                                <td class="px-3 py-2 text-center align-middle">
+                            <span
+                                class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold
+                                {{ $loop->iteration === 1 ? 'bg-amber-100 text-amber-700' : '' }}
+                                {{ $loop->iteration === 2 ? 'bg-gray-100 text-gray-700' : '' }}
+                                {{ $loop->iteration === 3 ? 'bg-orange-50 text-orange-700' : '' }}
+                                {{ $loop->iteration > 3 ? 'bg-gray-50 text-gray-500' : '' }}"
+                            >
+                                {{ $loop->iteration }}
+                            </span>
+                                </td>
+
+                                {{-- نام --}}
+                                <td class="px-3 py-2 text-sm text-gray-800 truncate">
+                                    {{ $publisher->name }}
+                                </td>
+
+                                {{-- فروش کل --}}
+                                <td class="px-3 py-2 text-xs text-gray-600 whitespace-nowrap">
+                                    {{ number_format($publisher->total_revenue) }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="p-4 text-center text-gray-500 text-sm">
+                                    داده‌ای یافت نشد.
+                                </td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- گویندگان برتر --}}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+                <div class="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
+                    <h3 class="text-sm font-semibold text-gray-800">گویندگان برتر</h3>
+                    <span class="text-[11px] text-gray-400">بر اساس مجموع مبلغ فروش</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-3 py-2 text-center text-[11px] font-medium text-gray-500">رتبه</th>
+                            <th class="px-3 py-2 text-right text-[11px] font-medium text-gray-500">نام</th>
+                            <th class="px-3 py-2 text-right text-[11px] font-medium text-gray-500">فروش کل (ریال)</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                        @forelse($topNarrators as $narrator)
+                            <tr class="hover:bg-gray-50/80">
+                                {{-- رتبه --}}
+                                <td class="px-3 py-2 text-center align-middle">
+                            <span
+                                class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold
+                                {{ $loop->iteration === 1 ? 'bg-amber-100 text-amber-700' : '' }}
+                                {{ $loop->iteration === 2 ? 'bg-gray-100 text-gray-700' : '' }}
+                                {{ $loop->iteration === 3 ? 'bg-orange-50 text-orange-700' : '' }}
+                                {{ $loop->iteration > 3 ? 'bg-gray-50 text-gray-500' : '' }}"
+                            >
+                                {{ $loop->iteration }}
+                            </span>
+                                </td>
+
+                                {{-- نام --}}
+                                <td class="px-3 py-2 text-sm text-gray-800 truncate">
+                                    {{ $narrator->name }}
+                                </td>
+
+                                {{-- فروش کل --}}
+                                <td class="px-3 py-2 text-xs text-gray-600 whitespace-nowrap">
+                                    {{ number_format($narrator->total_revenue) }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="p-4 text-center text-gray-500 text-sm">
+                                    داده‌ای یافت نشد.
+                                </td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        {{-- فروش‌های اخیر (جدا و تمام عرض) --}}
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
+            <h3 class="p-4 text-lg font-semibold text-gray-800 border-b">فروش‌های اخیر</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">کتاب</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">پلتفرم</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">تاریخ فروش</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">مبلغ</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @forelse($recentPayments as $payment)
+                        <tr class="border-b">
+                            <td class="px-4 py-3 text-sm text-gray-800">{{ $payment->book->title }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-800">
+                                {{ $payment->sale_platform ? \App\Enums\Book\SalesPlatformEnum::from($payment->sale_platform)->pName() : '-' }}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-500">
+                                {{ \Morilog\Jalali\Jalalian::forge($payment->sale_date)->format('Y/m/d H:i') }}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-500">
+                                {{ number_format($payment->amount) }} ریال
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="p-4 text-center text-gray-500">داده‌ای یافت نشد.</td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
 
