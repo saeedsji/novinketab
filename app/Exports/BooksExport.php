@@ -42,6 +42,8 @@ class BooksExport implements FromQuery, WithHeadings, WithMapping
             'تگ‌ها',
             'قالب‌ها',
             'پلتفرم‌های فروش',
+            'تعداد ترک',
+            'مدت زمان',
         ];
     }
 
@@ -74,6 +76,8 @@ class BooksExport implements FromQuery, WithHeadings, WithMapping
             !empty($book->tags) ? implode(', ', $book->tags ?? []) : '',
             $mapEnumArray($book->formats, BookFormatEnum::class),
             $mapEnumArray($book->sales_platforms, SalesPlatformEnum::class),
+            $book->track_count,
+            $book->duration,
         ];
     }
 }
