@@ -5,6 +5,7 @@
                 <h1 class="text-2xl font-bold text-gray-900">داشبورد آنالیز جامع</h1>
                 <p class="mt-1 text-sm text-gray-500">تحلیل کامل داده‌های فروش بر اساس معیارها و بازه‌های زمانی
                     مختلف.</p>
+                <p class="mt-1 text-sm text-gray-500 font-bold" >تمامی نمودار ها بر اساس سهم ناشر است</p>
             </div>
         </div>
 

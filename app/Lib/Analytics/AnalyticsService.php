@@ -68,7 +68,7 @@ class AnalyticsService
     {
         $paymentsQuery = Payment::query()->where($this->getPaymentFilterCallback());
         $stats = $paymentsQuery->select(
-            DB::raw('SUM(amount) as total_revenue'),
+            DB::raw('SUM(publisher_share) as total_revenue'),
             DB::raw('COUNT(id) as total_sales_count'),
             DB::raw('SUM(discount) as total_discount'),
             DB::raw('SUM(publisher_share) as total_publisher_share')
@@ -108,7 +108,7 @@ class AnalyticsService
     public function getTopAuthors(int $limit = 5)
     {
         return Author::query()
-            ->select('authors.id', 'authors.name', DB::raw('SUM(payments.amount) as total_revenue'))
+            ->select('authors.id', 'authors.name', DB::raw('SUM(payments.publisher_share) as total_revenue'))
             // Join tables to connect authors to payments
             ->join('book_author_pivot', 'authors.id', '=', 'book_author_pivot.author_id')
             ->join('books', 'book_author_pivot.book_id', '=', 'books.id')
@@ -132,7 +132,7 @@ class AnalyticsService
             ->select(
                 'publishers.id',
                 'publishers.name',
-                DB::raw('SUM(payments.amount) as total_revenue')
+                DB::raw('SUM(payments.publisher_share) as total_revenue')
             )
             ->join('book_publisher_pivot', 'publishers.id', '=', 'book_publisher_pivot.publisher_id')
             ->join('books', 'book_publisher_pivot.book_id', '=', 'books.id')
@@ -168,7 +168,7 @@ class AnalyticsService
             ->select(
                 'narrators.id',
                 'narrators.name',
-                DB::raw('SUM(payments.amount) as total_revenue')
+                DB::raw('SUM(payments.publisher_share) as total_revenue')
             )
             ->join('book_narrator_pivot', 'narrators.id', '=', 'book_narrator_pivot.narrator_id')
             ->join('books', 'book_narrator_pivot.book_id', '=', 'books.id')
@@ -220,7 +220,7 @@ class AnalyticsService
             $query->withCount(['payments as aggregate' => $filterCallback])->orderByDesc('aggregate');
         }
         else { // revenue
-            $query->withSum(['payments as aggregate' => $filterCallback], 'amount')->orderByDesc('aggregate');
+            $query->withSum(['payments as aggregate' => $filterCallback], 'publisher_share')->orderByDesc('aggregate');
         }
 
         return $query->limit($limit)->get();
@@ -229,7 +229,7 @@ class AnalyticsService
     private function getSalesOverTimeData(): array
     {
         $query = Payment::query()->where($this->getPaymentFilterCallback())
-            ->select(DB::raw('DATE(sale_date) as date'), DB::raw('SUM(amount) as total'))
+            ->select(DB::raw('DATE(sale_date) as date'), DB::raw('SUM(publisher_share) as total'))
             ->groupBy('date')
             ->orderBy('date', 'asc');
 
@@ -242,9 +242,15 @@ class AnalyticsService
 
     private function getSalesByPlatformData(): array
     {
-        $platformMapping = [1 => 'فیدیبو', 2 => 'طاقچه', 3 => 'نوار', 4 => 'کتابراه'];
+        $platformMapping = [
+            1 => 'فیدیبو',          // FIDIBO
+            2 => 'طاقچه',           // TAGHCHEH
+            3 => 'کتابراه',         // KETABRAH
+            4 => 'نوار',            // NAVAR
+            5 => 'نوین کتاب گویا',  // NOVIN_KETAB
+        ];
         $data = Payment::query()->where($this->getPaymentFilterCallback())
-            ->select('sale_platform', DB::raw('SUM(amount) as total'))
+            ->select('sale_platform', DB::raw('SUM(publisher_share) as total'))
             ->groupBy('sale_platform')->get();
 
         return [
@@ -270,7 +276,7 @@ class AnalyticsService
             ->where(function ($q) {
                 $this->getPaymentFilterCallback()($q->from('payments'));
             })
-            ->selectRaw('SUM(payments.amount) as total_revenue')
+            ->selectRaw('SUM(payments.publisher_share) as total_revenue')
             ->groupBy('categories.id', 'categories.name')
             ->orderByDesc('total_revenue')
             ->limit($limit)
@@ -286,7 +292,7 @@ class AnalyticsService
     {
         $filterCallback = $this->getPaymentFilterCallback();
         $data = Book::whereHas('payments', $filterCallback)
-            ->withSum(['payments as total_revenue' => $filterCallback], 'amount')
+            ->withSum(['payments as total_revenue' => $filterCallback], 'publisher_share')
             ->get()
             ->groupBy($attribute)
             ->map(fn($books) => $books->sum('total_revenue'));
