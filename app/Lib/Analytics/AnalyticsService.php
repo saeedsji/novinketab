@@ -68,7 +68,7 @@ class AnalyticsService
     {
         $paymentsQuery = Payment::query()->where($this->getPaymentFilterCallback());
         $stats = $paymentsQuery->select(
-            DB::raw('SUM(publisher_share) as total_revenue'),
+            DB::raw('SUM(amount) as total_revenue'),
             DB::raw('COUNT(id) as total_sales_count'),
             DB::raw('SUM(discount) as total_discount'),
             DB::raw('SUM(publisher_share) as total_publisher_share')

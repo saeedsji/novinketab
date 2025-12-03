@@ -128,7 +128,7 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
                 <div class="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
                     <h3 class="text-sm font-semibold text-gray-800">نویسندگان برتر</h3>
-                    <span class="text-[11px] text-gray-400">بر اساس مجموع مبلغ فروش</span>
+                    <span class="text-[11px] text-gray-400">بر اساس مجموع سهم ناشر</span>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -182,7 +182,7 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
                 <div class="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
                     <h3 class="text-sm font-semibold text-gray-800">ناشران برتر</h3>
-                    <span class="text-[11px] text-gray-400">بر اساس مجموع مبلغ فروش</span>
+                    <span class="text-[11px] text-gray-400">بر اساس مجموع سهم ناشر</span>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -236,7 +236,7 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
                 <div class="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
                     <h3 class="text-sm font-semibold text-gray-800">گویندگان برتر</h3>
-                    <span class="text-[11px] text-gray-400">بر اساس مجموع مبلغ فروش</span>
+                    <span class="text-[11px] text-gray-400">بر اساس مجموع سهم ناشر</span>
                 </div>
 
                 <div class="overflow-x-auto">
