@@ -35,6 +35,7 @@ class Book extends Model
         'breakeven_sales_count',
         'sales_platforms',
         'formats',
+        'novinketab_book_id',
         'fidibo_book_id',
         'taghcheh_book_id',
         'navar_book_id',

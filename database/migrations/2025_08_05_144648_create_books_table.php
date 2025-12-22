@@ -41,6 +41,7 @@ return new class extends Migration
             $table->json('formats')->nullable()->comment('قالب های کتاب');
 
             // شناسه های خارجی
+            $table->string('novinketab_book_id')->nullable();
             $table->string('fidibo_book_id')->nullable();
             $table->string('taghcheh_book_id')->nullable();
             $table->string('navar_book_id')->nullable();

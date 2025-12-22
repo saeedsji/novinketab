@@ -217,19 +217,24 @@
                 {{-- Section 5: External IDs --}}
                 <fieldset class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border border-border-color p-4 rounded-lg">
                     <legend class="text-base font-semibold text-text-main px-2">شناسه‌های خارجی</legend>
-                    <div class="sm:col-span-6 md:col-span-3">
-                        <label for="fidibo_book_id" class="form-label">شناسه فیدیبو</label>
-                        <input type="number" dir="ltr" wire:model.blur="fidibo_book_id" id="fidibo_book_id" class="form-input mt-1">
+                    <div class="sm:col-span-6 md:col-span-2">
+                        <label for="novinketab_book_id" class="form-label">شناسه نوین کتاب</label>
+                        <input type="number" dir="ltr" wire:model.blur="novinketab_book_id" id="novinketab_book_id" class="form-input mt-1">
                     </div>
-                    <div class="sm:col-span-6 md:col-span-3">
+                    <div class="sm:col-span-6 md:col-span-2">
+                        <label for="fidibo_book_id" class="form-label">شناسه فیدیبو</label>
+                        <input type="number" dir="ltr" wire:model.blur="fidibo_book_id" id="fidibo_book_id"
+                               class="form-input mt-1">
+                    </div>
+                    <div class="sm:col-span-6 md:col-span-2">
                         <label for="taghcheh_book_id" class="form-label">شناسه طاقچه</label>
                         <input type="number" dir="ltr" wire:model.blur="taghcheh_book_id" id="taghcheh_book_id" class="form-input mt-1">
                     </div>
-                    <div class="sm:col-span-6 md:col-span-3">
+                    <div class="sm:col-span-6 md:col-span-2">
                         <label for="navar_book_id" class="form-label">شناسه نوار</label>
                         <input type="number" dir="ltr" wire:model.blur="navar_book_id" id="navar_book_id" class="form-input mt-1">
                     </div>
-                    <div class="sm:col-span-6 md:col-span-3">
+                    <div class="sm:col-span-6 md:col-span-2">
                         <label for="ketabrah_book_id" class="form-label">شناسه کتابراه</label>
                         <input type="number" dir="ltr" wire:model.blur="ketabrah_book_id" id="ketabrah_book_id" class="form-input mt-1">
                     </div>

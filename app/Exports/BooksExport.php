@@ -39,54 +39,42 @@ class BooksExport implements FromQuery, WithHeadings, WithMapping
     public function headings(): array
     {
         return [
-            // اطلاعات پایه
-            'ID',
             'کد مالی',
-            'عنوان کتاب',
-            'عنوان در طاقچه',
+            'عنوان',
+            'دسته بندی سطح 1',
+            'دسته بندی سطح 2',
             'وضعیت',
-            'دسته‌بندی',
-            'مناسب برای (جنسیت)',
-
-            // قیمت‌ها و پارامترهای مالی کتاب
-            'قیمت چاپی (ریال)',
-            'قیمت پیشنهادی (ریال)',
-            'حداکثر تخفیف مجاز (%)',
-
-            // اطلاعات عددی کتاب
-            'تعداد ترک صوتی',
-            'مدت زمان (دقیقه)',
-            'تعداد صفحات چاپی',
-            'تعداد فروش برای سر به سر',
-
-            // شناسه‌های پلتفرم‌ها
-            'شناسه فیدیبو',
-            'شناسه طاقچه',
-            'شناسه نوار',
-            'شناسه کتابراه',
-
-            // عوامل تولید
-            'نویسندگان',
-            'مترجمان',
-            'گویندگان',
-            'آهنگسازان',
+            'نویسنده',
+            'مترجم',
+            'گوینده',
+            'انتخاب موسیقی',
             'تدوینگران',
-            'ناشران',
-
-            // توضیحات و متادیتا
-            'توضیحات',
-            'تگ‌ها',
-            'قالب‌ها',
-            'پلتفرم‌های فروش',
+            'ناشر',
+            'مدت  زمان',
+            'تعداد ترک',
             'تاریخ انتشار',
+            'محل فروش',
+            'قالب',
+            'Novin Ketab',
+            'Fidibo',
+            'Ketabrah',
+            'Taghcheh',
+            'Navar',
+            'ماکزیمم تخفیف اعلامی',
+            'تعداد صفحات کتاب چاپی',
+            'قیمت کتاب چاپی',
+            'قیمت پیشنهادی',
+            'توضیحات',
+            'نقطه سر به سر تعداد فروش',
+            'تگ ها (اقتباس از - جوایز)' ,
+            'جنسیت گوینده',
+            'آخرین قیمت',
+
+            // --- ستون‌های باقی‌مانده از کد اصلی (که در اکسل نبودند) ---
+            'عنوان در طاقچه',
             'امتیاز کتاب',
-
-            // قیمت و زمان‌های سیستمی
-            'آخرین قیمت (ریال)',
-            'تاریخ ایجاد رکورد',
+            'تاریخ ایجاد کتاب در پنل',
             'تاریخ آخرین بروزرسانی',
-
-            // خلاصه پرداخت‌ها / فروش‌ها
             'تعداد تراکنش‌های فروش',
             'مجموع مبلغ فروش (ریال)',
             'مجموع سهم ناشر (ریال)',
@@ -144,60 +132,43 @@ class BooksExport implements FromQuery, WithHeadings, WithMapping
             : '';
 
         return [
-            // اطلاعات پایه
-            $book->id,
-            $book->financial_code,
-            $book->title,
+            $book->financial_code, // کد مالی
+            $book->title, // عنوان
+            $book->category->parent->name ?? '', // دسته بندی سطح 1
+            $book->category->name ?? '', // دسته بندی سطح 2
+            $book->status?->pName() ?? '', // وضعیت
+            $book->authors->pluck('name')->join(', '), // نویسنده
+            $book->translators->pluck('name')->join(', '), // مترجم
+            $book->narrators->pluck('name')->join(', '), // گوینده
+            $book->composers->pluck('name')->join(', '), // آهنگساز
+            $book->editors->pluck('name')->join(', '), // تدوینگران
+            $book->publishers->pluck('name')->join(', '), // ناشر
+
+            $book->duration, // مدت  زمان
+            $book->track_count, // تعداد ترک
+            $book->publish_date ? Jalalian::forge($book->publish_date)->format('Y/m/d') : '', // تاریخ انتشار
+            $mapEnumArray($book->sales_platforms, SalesPlatformEnum::class), // محل فروش
+            $mapEnumArray($book->formats, BookFormatEnum::class), // قالب
+            $book->novinketab_book_id, // NovinKetab
+            $book->fidibo_book_id, // Fidibo
+            $book->ketabrah_book_id, // Ketabrah
+            $book->taghcheh_book_id, // Taghcheh
+            $book->navar_book_id, // Navar
+            $book->max_discount, // ماکزیمم تخفیف اعلامی به فیدیبو
+            $book->print_pages, // تعداد صفحات کتاب چاپی
+            $book->print_price, // قیمت کتاب چاپی
+            $book->suggested_price, // قیمت پیشنهادی
+            $book->description ?? '', // توضیحات
+            $book->breakeven_sales_count, // نقطه سر به سر تعداد فروش
+            !empty($book->tags) ? implode(', ', $book->tags ?? []) : '', // Tags
+            $book->gender_suitability?->pName() ?? '', // مناسب کدام جنسیت
+            $book->latestPrice->price ?? 0, // قیمت ابتدای 1404 (جایگذاری با آخرین قیمت موجود)
+
+            // --- نگاشت داده‌های باقی‌مانده در انتهای فایل ---
             $book->taghche_title,
-            $book->status?->pName() ?? '',
-            $book->category->name ?? '',
-            $book->gender_suitability?->pName() ?? '',
-
-            // قیمت‌ها و پارامترهای مالی کتاب
-            $book->print_price,
-            $book->suggested_price,
-            $book->max_discount,
-
-            // اطلاعات عددی کتاب
-            $book->track_count,
-            $book->duration,
-            $book->print_pages,
-            $book->breakeven_sales_count,
-
-            // شناسه‌های پلتفرم‌ها
-            $book->fidibo_book_id,
-            $book->taghcheh_book_id,
-            $book->navar_book_id,
-            $book->ketabrah_book_id,
-
-            // عوامل تولید
-            $book->authors->pluck('name')->join(', '),
-            $book->translators->pluck('name')->join(', '),
-            $book->narrators->pluck('name')->join(', '),
-            $book->composers->pluck('name')->join(', '),
-            $book->editors->pluck('name')->join(', '),
-            $book->publishers->pluck('name')->join(', '),
-
-            // توضیحات و متادیتا
-            $book->description ?? '',
-            !empty($book->tags) ? implode(', ', $book->tags ?? []) : '',
-            $mapEnumArray($book->formats, BookFormatEnum::class),
-            $mapEnumArray($book->sales_platforms, SalesPlatformEnum::class),
-            $book->publish_date
-                ? Jalalian::forge($book->publish_date)->format('Y/m/d')
-                : '',
-            $book->rate?->pName() ?? '',
-
-            // قیمت و زمان‌های سیستمی
-            $book->latestPrice->price ?? 0,
-            $book->created_at
-                ? Jalalian::forge($book->created_at)->format('Y/m/d H:i:s')
-                : '',
-            $book->updated_at
-                ? Jalalian::forge($book->updated_at)->format('Y/m/d H:i:s')
-                : '',
-
-            // خلاصه پرداخت‌ها / فروش‌ها
+            $book->rate?->pName() ?? '', // امتیاز
+            $book->created_at ? Jalalian::forge($book->created_at)->format('Y/m/d H:i:s') : '',
+            $book->updated_at ? Jalalian::forge($book->updated_at)->format('Y/m/d H:i:s') : '',
             $paymentsCount,
             $paymentsTotalAmount,
             $paymentsPublisherShare,

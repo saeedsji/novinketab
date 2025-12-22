@@ -38,6 +38,7 @@ class BookForm extends Component
     public $breakeven_sales_count = null;
     public $sales_platforms = [];
     public $formats = [];
+    public $novinketab_book_id = null;
     public $fidibo_book_id = null;
     public $taghcheh_book_id = null;
     public $navar_book_id = null;
@@ -79,6 +80,7 @@ class BookForm extends Component
             'formats' => 'nullable|array',
             'sales_platforms' => 'nullable|array',
             'tags' => 'nullable|array',
+            'novinketab_book_id' => 'nullable|string|max:255',
             'fidibo_book_id' => 'nullable|string|max:255',
             'taghcheh_book_id' => 'nullable|string|max:255',
             'navar_book_id' => 'nullable|string|max:255',
@@ -137,6 +139,7 @@ class BookForm extends Component
             'breakeven_sales_count' => $this->breakeven_sales_count,
             'sales_platforms' => $this->sales_platforms,
             'formats' => $this->formats,
+            'novinketab_book_id' => $this->novinketab_book_id,
             'fidibo_book_id' => $this->fidibo_book_id,
             'taghcheh_book_id' => $this->taghcheh_book_id,
             'navar_book_id' => $this->navar_book_id,

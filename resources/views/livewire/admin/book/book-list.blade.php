@@ -464,7 +464,7 @@
                                             <h3 class="mb-3 text-base font-semibold text-gray-800">شناسه‌ها</h3>
                                             @php
                                                 $platforms = [
-                                                    'فیدیبو' => 'fidibo_book_id', 'طاقچه' => 'taghcheh_book_id',
+                                                    'نوین کتاب' => 'novinketab_book_id', 'فیدیبو' => 'fidibo_book_id', 'طاقچه' => 'taghcheh_book_id',
                                                     'نوار' => 'navar_book_id', 'کتابراه' => 'ketabrah_book_id',
                                                 ];
                                             @endphp
